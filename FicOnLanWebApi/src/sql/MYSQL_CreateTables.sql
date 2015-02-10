@@ -1,9 +1,19 @@
 -- Indexes for primary keys have been explicitly created.
 
 SET foreign_key_checks = 0;
+DROP TABLE IF EXISTS Session;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS EmailTemplate;
 SET foreign_key_checks = 1;
+
+-- ------------------------------ Session  -------------------------------------
+
+CREATE TABLE Session (
+	Session_id                  varchar(100)  NOT NULL  ,
+	Session_user_id				bigint UNSIGNED NOT NULL ,
+	Session_lastAccess			timestamp ,
+	CONSTRAINT Session_PK PRIMARY KEY ( Session_id ) 
+) engine=InnoDB;
 
 -- ------------------------------ User -------------------------------------
 
@@ -45,3 +55,8 @@ CREATE TABLE EmailTemplate (
 ) engine=InnoDB;
 
  CREATE INDEX EmailTemplateByname ON EmailTemplate (EmailTemplate_name);
+ 
+ 
+ 
+ ALTER TABLE Session ADD CONSTRAINT fk_session_user FOREIGN KEY ( Session_user_id ) REFERENCES User (User_id) ON DELETE CASCADE ON UPDATE CASCADE;
+ 

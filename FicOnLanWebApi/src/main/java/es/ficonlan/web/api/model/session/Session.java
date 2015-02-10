@@ -4,27 +4,43 @@ import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
 
 import es.ficonlan.web.api.model.user.User;
-import es.ficonlan.web.api.model.user.UserDao;
 import es.ficonlan.web.api.model.util.exceptions.InstanceException;
+import es.ficonlan.web.api.model.util.session.SessionData;
 
 /**
  * @author Miguel Ángel Castillo Bellagona
  */
+@Entity
+@Table(name = "Session")
 public class Session {
 	
-	@Autowired
-	UserDao userDao;
-	
+	@Id
+	@Column(name = "Session_id")
 	private String sessionId;
-	private int userId;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "Session_user_id")
+	private User user;
+	
+	@Column(name = "Session_lastAccess")
+	@Temporal(javax.persistence.TemporalType.TIMESTAMP)
 	private Calendar lastAccess;
+	
+	public Session() {}
 	
 	public Session(User user) {
 		this.sessionId = generateSessionId(user);
-		this.userId = user.getUserId();
+		this.user = user;
 		this.lastAccess = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	}
 	
@@ -49,7 +65,7 @@ public class Session {
 			return null;
 		}
 	}
-
+	
 	public String getSessionId() {
 		return sessionId;
 	}
@@ -58,12 +74,12 @@ public class Session {
 		this.sessionId = sessionId;
 	}
 
-	public int getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(int userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public Calendar getLastAccess() {
@@ -73,15 +89,10 @@ public class Session {
 	public void setLastAccess(Calendar lastAccess) {
 		this.lastAccess = lastAccess;
 	}
-	
-	public void setLastAccessNow() {
-		this.lastAccess = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-	}
-	
+
 	public SessionData createSessionData() throws InstanceException {
-		User u = userDao.find(this.userId);
-		return new SessionData(this.sessionId,this.userId,false,
-				u.getLogin(),u.getPremissions(),u.getLanguage());
+		return new SessionData(this.sessionId,this.user.getUserId(),false,
+				this.user.getLogin(),this.user.getPremissions(),this.user.getLanguage());
 	}
 
 }

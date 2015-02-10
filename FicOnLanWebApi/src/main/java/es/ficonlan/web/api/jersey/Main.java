@@ -1,6 +1,5 @@
 package es.ficonlan.web.api.jersey;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -20,6 +19,7 @@ import es.ficonlan.web.api.jersey.util.CORSResponseFilter;
 import es.ficonlan.web.api.jersey.util.CustomExceptionMapper;
 import es.ficonlan.web.api.model.email.EmailFIFOGmail;
 import es.ficonlan.web.api.model.userService.UserService;
+import es.ficonlan.web.api.model.util.session.SessionManager;
 
 /**
  * @author Miguel Ángel Castillo
@@ -82,6 +82,8 @@ public class Main {
 		UserService userService = ctx.getBean(UserService.class);
 		userService.initialize();
 
+		SessionManager.startSessionManager();
+		
 		EmailFIFOGmail.startEmailQueueThread();
 		
 		// Server Start

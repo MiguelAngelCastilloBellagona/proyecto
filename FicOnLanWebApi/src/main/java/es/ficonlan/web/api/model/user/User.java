@@ -1,6 +1,5 @@
 package es.ficonlan.web.api.model.user;
 
-
 import java.util.Calendar;
 
 import javax.persistence.Column;
@@ -114,7 +113,7 @@ public class User {
     }
 
     @JsonIgnore
-	@JsonProperty(value = "password")
+    @JsonProperty("password")
     public String getPassword() {
         return password;
     }
@@ -124,7 +123,7 @@ public class User {
     }
 
     @JsonIgnore
-	@JsonProperty(value = "secondpassword")
+    @JsonProperty("seccondpassword")
     public String getSecondPassword() {
 		return secondPassword;
 	}

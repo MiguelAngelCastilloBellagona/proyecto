@@ -1,4 +1,4 @@
-package es.ficonlan.web.api.model.session;
+package es.ficonlan.web.api.model.util.session;
 
 
 public class SessionData {

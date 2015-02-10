@@ -23,6 +23,8 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 	        response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 	                .entity("Internal error").type("text/plain").build();
 	    }
+	    //FIXME
+	    System.out.println(error);
 	    return response;
 	}
     

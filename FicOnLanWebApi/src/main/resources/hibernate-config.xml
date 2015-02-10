@@ -9,6 +9,7 @@
 		<!-- List of persistent classes -->
 		<mapping class="es.ficonlan.web.api.model.user.User" />
 		<mapping class="es.ficonlan.web.api.model.emailtemplate.EmailTemplate" />
+		<mapping class="es.ficonlan.web.api.model.session.Session" />
 
 	</session-factory>
 

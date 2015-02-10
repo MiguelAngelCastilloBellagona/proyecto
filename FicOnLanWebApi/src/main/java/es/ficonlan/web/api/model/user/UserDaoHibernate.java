@@ -35,19 +35,19 @@ public class UserDaoHibernate extends GenericDaoHibernate<User,Integer> implemen
 	
 	public User findUserBylogin(String login) {
 		return (User) getSession()
-				.createQuery("SELECT u FROM User u WHERE User_login = :login ")
+				.createQuery("SELECT u FROM User u WHERE u.login = :login ")
 				.setParameter("login", login).uniqueResult();
 	}
 	
 	public User findUserByEmail(String email) {
 		return (User) getSession()
-				.createQuery("SELECT u FROM User u Where User_email = :email ")
+				.createQuery("SELECT u FROM User u Where u.email = :email ")
 				.setParameter("email", email).uniqueResult();
 	}
 
 	public User findUserByDni(String dni) {
 		return (User) getSession()
-				.createQuery("SELECT u FROM User u Where User_dni = :dni ")
+				.createQuery("SELECT u FROM User u Where u.dni = :dni ")
 				.setParameter("dni", dni).uniqueResult();
 	}
 
