@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+	<session-factory>
+	    
+		<!-- List of persistent classes -->
+		<mapping class="es.ficonlan.web.api.model.user.User" />
+		<mapping class="es.ficonlan.web.api.model.emailtemplate.EmailTemplate" />
+
+	</session-factory>
+
+</hibernate-configuration>

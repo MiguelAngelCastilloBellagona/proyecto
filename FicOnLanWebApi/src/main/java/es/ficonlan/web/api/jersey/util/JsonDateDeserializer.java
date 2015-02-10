@@ -1,0 +1,35 @@
+package es.ficonlan.web.api.jersey.util;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.DeserializationContext;
+import org.codehaus.jackson.map.JsonDeserializer;
+import org.springframework.stereotype.Component;
+
+/**
+ * @author Miguel Ángel Castillo Bellagona
+ */
+@Component
+public class JsonDateDeserializer extends JsonDeserializer<Calendar> {
+
+	@Override
+	public Calendar deserialize(JsonParser jsonparser, DeserializationContext deserializationcontext) throws IOException, JsonProcessingException {
+		
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy/HH:mm:ss");
+		String date = jsonparser.getText();
+		Calendar c = Calendar.getInstance();
+		
+		try {
+			c.setTimeInMillis(format.parse(date).getTime());
+		} catch (ParseException e) {
+			throw new RuntimeException();
+		}
+		return c;
+	}
+
+}
