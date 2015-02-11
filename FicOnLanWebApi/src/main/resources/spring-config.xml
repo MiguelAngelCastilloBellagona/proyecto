@@ -10,6 +10,11 @@
                         http://www.springframework.org/schema/context
                         http://www.springframework.org/schema/context/spring-context.xsd">
     
+    <bean id="applicationProperties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:backend.properties" />
+	</bean>
+    
 	<!-- Enable usage of @Autowired. -->
 	<context:annotation-config />
 
@@ -17,23 +22,23 @@
 	<context:component-scan base-package="es.ficonlan.web.api.model" />
 	
 	<bean id="C3P0-dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close" > 
-		<property name="driverClass" value="com.mysql.jdbc.Driver"/>				<!-- JdbcDriver-->
-		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/ficondb"/>		<!-- db url-->
-		<property name="user" value="ficonuser"/>									<!-- db user-->
-		<property name="password" value="ficonpass"/>								<!-- db password-->
-		<property name="acquireIncrement" value="1"/>								<!-- Number of connections in which increases the poll when this is full and a new connection is requested -->
-		<property name="acquireRetryDelay" value="4500"/>							<!-- Minimum time to order new connections MILI-SECONDS-->
-		<property name="autoCommitOnClose" value="false" />							<!-- Enable autoCommit -->
-		<property name="initialPoolSize" value="10"/>								<!-- initialPoolSize -->
-		<property name="minPoolSize" value="10"/>									<!-- minPoolSize -->
-		<property name="maxPoolSize" value="75"/>									<!-- maxPoolSize -->
-		<property name="maxIdleTime" value="3600"/>									<!-- Minimum time that must be an idle connection to turn it off SECONDS -->
-		<property name="maxConnectionAge" value="7200" />							<!-- Maximum time you have to be an idle connection to turn it off SECONDS -->
-		<property name="maxIdleTimeExcessConnections" value="1800"/>				<!-- Minimum life time of a connection SECONDS -->
-		<property name="preferredTestQuery" value="select 1 from DUAL"/>			<!-- Query to test the pool -->
-		<property name="idleConnectionTestPeriod" value="180"/>						<!-- Test the idle connections every SECONDS -->
-		<property name="testConnectionOnCheckin" value="true" />					<!-- Test connections on create -->
-		<property name="testConnectionOnCheckout" value="false" />					<!-- Test connections on destroy -->
+		<property name="driverClass" value="${dataSource.driverClass}"/>									<!-- JdbcDriver-->
+		<property name="jdbcUrl" value="${dataSource.jdbcUrl}"/>											<!-- db url-->
+		<property name="user" value="${dataSource.user}"/>													<!-- db user-->
+		<property name="password" value="${dataSource.password}"/>											<!-- db password-->
+		<property name="acquireIncrement" value="${dataSource.acquireIncrement}"/>							<!-- Number of connections in which increases the poll when this is full and a new connection is requested -->
+		<property name="acquireRetryDelay" value="${dataSource.acquireRetryDelay}"/>						<!-- Minimum time to order new connections MILI-SECONDS-->
+		<property name="autoCommitOnClose" value="${dataSource.autoCommitOnClose}" />						<!-- Enable autoCommit -->
+		<property name="initialPoolSize" value="${dataSource.initialPoolSize}"/>							<!-- initialPoolSize -->
+		<property name="minPoolSize" value="${dataSource.minPoolSize}"/>									<!-- minPoolSize -->
+		<property name="maxPoolSize" value="${dataSource.maxPoolSize}"/>									<!-- maxPoolSize -->
+		<property name="maxIdleTime" value="${dataSource.maxIdleTime}"/>									<!-- Minimum time that must be an idle connection to turn it off SECONDS -->
+		<property name="maxConnectionAge" value="${dataSource.maxConnectionAge}" />							<!-- Maximum time you have to be an idle connection to turn it off SECONDS -->
+		<property name="maxIdleTimeExcessConnections" value="${dataSource.maxIdleTimeExcessConnections}"/>	<!-- Minimum life time of a connection SECONDS -->
+		<property name="preferredTestQuery" value="${dataSource.preferredTestQuery}"/>						<!-- Query to test the pool -->
+		<property name="idleConnectionTestPeriod" value="${dataSource.idleConnectionTestPeriod}"/>			<!-- Test the idle connections every SECONDS -->
+		<property name="testConnectionOnCheckin" value="${dataSource.testConnectionOnCheckin}" />			<!-- Test connections on create -->
+		<property name="testConnectionOnCheckout" value="${dataSource.testConnectionOnCheckout}" />			<!-- Test connections on destroy -->
 	</bean>
 	
 	
