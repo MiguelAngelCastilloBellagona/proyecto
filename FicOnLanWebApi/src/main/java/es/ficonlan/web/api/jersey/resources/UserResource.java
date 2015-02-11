@@ -142,10 +142,10 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("login",request);
 			SessionData u = userService.login(loginData.getLogin(), loginData.getPassword());
-			if(request!=null) System.out.println("login {" + loginData.getLogin() + "}");
+			if(request!=null) System.out.println("login {" + loginData.getLogin() + "}\t" + "sessionId {" + u.getSessionId() + "}");
 			return Response.status(200).entity(u).build();
 		} catch (ServiceException e) {
-			System.out.println(e.toString());
+			System.out.println("login {" + loginData.getLogin() + "}\t" + e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
 		}
 	}
@@ -156,9 +156,11 @@ public class UserResource {
 	@DELETE
 	public Response closeSessionUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
 		RequestControl.showContextData("closeSessionUSER",request);
-		if(request!=null) System.out.println("sessionId {" + sessionId + "}");
+		if(request!=null) 
 		try {
+			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			userService.closeUserSession(sessionId);
+			System.out.println("login {" + login + "}\t" + "sessionId {" + sessionId + "}");
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
