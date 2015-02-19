@@ -38,7 +38,7 @@ public class SessionManager {
 				super.run();
 				try {
 					while (true) {
-						Thread.sleep(SESSION_CLEAN_FREQUENCY*1000);
+						Thread.sleep(SESSION_CLEAN_FREQUENCY*1000*60);
 						userService.closeOldSessions();
 					}
 				} catch (Exception e) {

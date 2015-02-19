@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void closeOldSessions() {
 		Calendar c = Calendar.getInstance();
-		c.add(Calendar.SECOND, SESSION_TIMEOUT * -1);
+		c.add(Calendar.MINUTE, SESSION_TIMEOUT * -1);
 		List<Session> list = sessionDao.findOlderThanDate(c);
 		for(Session session : list) {
 			try {
@@ -199,7 +199,6 @@ public class UserServiceImpl implements UserService {
 		} catch (InstanceException e) {
 			return false;
 		}
-
 	}
 
 	@Override
