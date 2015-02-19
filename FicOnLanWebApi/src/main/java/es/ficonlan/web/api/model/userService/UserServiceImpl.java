@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional
 	public SessionData login(String login, String password) throws ServiceException {
 		if(login==null) throw new ServiceException(ServiceException.MISSING_FIELD,"Login");
 		if(password ==null) throw new ServiceException(ServiceException.MISSING_FIELD,"Password");
