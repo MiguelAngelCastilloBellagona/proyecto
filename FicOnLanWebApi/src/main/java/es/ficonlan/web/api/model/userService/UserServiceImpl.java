@@ -251,7 +251,11 @@ public class UserServiceImpl implements UserService {
 			user.setSecondPasswordExpDate(null);
 			user.setPassword(PasswordManager.hashPassword(newPassword));
 			user.setSecondPassword(user.getSecondPassword());
-			userDao.save(user);	
+			userDao.save(user);
+			List<Session> list = sessionDao.findSessionByUserId(user.getUserId());
+			for(Session s : list) {
+				if(s.getSessionId()!=sessionId) sessionDao.remove(s.getSessionId());
+			}
 		} catch (InstanceException e) {
 			throw new  ServiceException(ServiceException.INVALID_SESSION,"Session");
 		}	
