@@ -14,6 +14,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import es.ficonlan.web.api.jersey.resources.SessionResource;
 import es.ficonlan.web.api.jersey.resources.UserResource;
 import es.ficonlan.web.api.jersey.util.CORSResponseFilter;
 import es.ficonlan.web.api.jersey.util.CustomExceptionMapper;
@@ -59,6 +60,7 @@ public class Main {
 		rc.register(Jackson1Feature.class);
 		
 		rc.register(UserResource.class);
+		rc.register(SessionResource.class);
 		
 		rc.register(CORSResponseFilter.class);
 		rc.register(CustomExceptionMapper.class);

@@ -21,13 +21,12 @@ import javax.ws.rs.core.Response;
 import org.glassfish.grizzly.http.server.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import es.ficonlan.web.api.jersey.resources.util.ChangePasswordData;
 import es.ficonlan.web.api.jersey.util.ApplicationContextProvider;
 import es.ficonlan.web.api.jersey.util.RequestControl;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.userService.UserService;
 import es.ficonlan.web.api.model.util.exceptions.ServiceException;
-import es.ficonlan.web.api.model.session.Session;
-import es.ficonlan.web.api.model.util.session.SessionData;
 
 
 /**
@@ -38,60 +37,6 @@ public class UserResource {
 	
 	private String[] s = {"userId","name","login","dni","email","phoneNumber","shirtSize","dob"};
 	private ArrayList<String> l;
-	
-	static class ChangePasswordData {
-		private String oldPassword;
-		private String newPassword;
-
-		public ChangePasswordData(){}
-		public ChangePasswordData(String oldPassword, String newPassword) {
-			super();
-			this.oldPassword = oldPassword;
-			this.newPassword = newPassword;
-		}
-		public String getOldPassword() {
-			return oldPassword;
-		}
-		public void setOldPassword(String oldPassword) {
-			this.oldPassword = oldPassword;
-		}
-		public String getNewPassword() {
-			return newPassword;
-		}
-		public void setNewPassword(String newPassword) {
-			this.newPassword = newPassword;
-		}	
-	}
-	
-	static class LoginData {
-
-		private String login;
-		private String password;
-
-		public LoginData() {
-		}
-
-		public LoginData(String login, String password) {
-			this.login = login;
-			this.password = password;
-		}
-
-		public String getLogin() {
-			return login;
-		}
-
-		public void setLogin(String login) {
-			this.login = login;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
-	}
 	
 	@Autowired
     private UserService userService;
@@ -119,54 +64,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/passwordrecover/")
-	@POST
-	@Consumes("text/plain")
-	public Response passwordRecover(@Context Request request, String email) {
-		try {
-			RequestControl.showContextData("passwordRecover",request);
-			boolean b =  userService.passwordRecover(email);
-			if(request!=null) System.out.println("email {" + b + "} = " + email);
-			return Response.status(200).entity(b).build();
-		} catch (ServiceException e) {
-			System.out.println(e.toString());
-			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
-		}
-	}	
-	
-	@Path("/login/")
-	@POST
-	@Consumes({ MediaType.APPLICATION_JSON })
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response login(@Context Request request, @HeaderParam("sessionId") String sessionId, LoginData loginData) {
-		try {
-			RequestControl.showContextData("login",request);
-			SessionData u = userService.login(loginData.getLogin(), loginData.getPassword());
-			if(request!=null) System.out.println("login {" + loginData.getLogin() + "}\t" + "sessionId {" + u.getSessionId() + "}");
-			return Response.status(200).entity(u).build();
-		} catch (ServiceException e) {
-			System.out.println("login {" + loginData.getLogin() + "}\t" + e.toString());
-			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
-		}
-	}
-	
 	//USER
-	
-	@Path("/session/")
-	@DELETE
-	public Response closeSessionUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
-		RequestControl.showContextData("closeSessionUSER",request);
-		if(request!=null) 
-		try {
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
-			userService.closeUserSession(sessionId);
-			System.out.println("login {" + login + "}\t" + "sessionId {" + sessionId + "}");
-		} catch (ServiceException e) {
-			System.out.println(e.toString());
-			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
-		}
-		return Response.status(204).build();
-	}
 	
 	@DELETE
 	@Consumes({MediaType.APPLICATION_JSON})
@@ -183,10 +81,9 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/{userId}")
 	@PUT
 	@Consumes({MediaType.APPLICATION_JSON})
-	public Response changeDataUSER(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, User user) {
+	public Response changeDataUSER(@Context Request request, @HeaderParam("sessionId") String sessionId, User user) {
 		try {
 			RequestControl.showContextData("changeDataUSER",request);
 			userService.changeUserDataUSER(sessionId, user);
@@ -199,10 +96,10 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/changePassword/{userId}")
+	@Path("/changePassword")
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
-	public Response changePasswordUSER(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, ChangePasswordData data) {
+	public Response changePasswordUSER(@Context Request request, @HeaderParam("sessionId") String sessionId, ChangePasswordData data) {
 		try {
 			RequestControl.showContextData("changePasswordUSER",request);
 			userService.changeUserPasswordUSER(sessionId, data.getOldPassword(), data.getNewPassword());
@@ -248,40 +145,7 @@ public class UserResource {
 	
 	//ADMIN
 	
-	@Path("/admin/allUserSession/{userId}")
-	@GET
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response getSllUserSessionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
-		try {
-			RequestControl.showContextData("getSllUserSessionsADMIN",request);
-			List<Session> l = userService.getAllUserSessionsADMIN(sessionId,userId);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
-			return Response.status(200).entity(l).build();
-		} catch (ServiceException e) {
-			System.out.println(e.toString());
-			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
-		}
-	}
-	
-	@Path("/admin/allUserSession/{userId}")
-	@DELETE
-	public Response closeAllUserSessionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
-		try {
-			RequestControl.showContextData("closeAllUserSessionsADMIN",request);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.closeAllUserSessionsADMIN(sessionId,userId);
-			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
-			return Response.status(203).build();
-		} catch (ServiceException e) {
-			System.out.println(e.toString());
-			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
-		}	
-	}
-	
-	@Path("/admin/getAllUser/query")
+	@Path("/admin/allUser/query")
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
 	public Response getAllUsersADMIN(@Context Request request, 
@@ -308,7 +172,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/admin/getAllUserTAM/")
+	@Path("/admin/allUserTAM/")
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
 	public Response getAllUsersTAMADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId) {
@@ -324,7 +188,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/admin/delete/{userId}")
+	@Path("/admin/{userId}")
 	@DELETE
 	@Consumes({MediaType.APPLICATION_JSON})
 	public Response removeUserADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
@@ -341,7 +205,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/admin/changeData/{userId}")
+	@Path("/admin/{userId}")
 	@PUT
 	@Consumes({MediaType.APPLICATION_JSON})
 	public Response changeDataADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, User user) {
@@ -375,7 +239,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/admin/permissions/{userId}")
+	@Path("/admin/{userId}/permissions")
 	@GET
 	@Produces("text/plain")
 	public Response getUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
@@ -392,7 +256,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/admin/permissions/{userId}/{permission}")
+	@Path("/admin/{userId}/permissions/{permission}")
 	@POST
 	@Produces("text/plain")
 	public Response addUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, @PathParam("permission") String permission) {
@@ -409,7 +273,7 @@ public class UserResource {
 		}
 	}
 	
-	@Path("/admin/permissions/{userId}/{permission}")
+	@Path("/admin/{userId}/permissions/{permission}")
 	@DELETE
 	@Produces("text/plain")
 	public Response removeUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, @PathParam("permission") String permission) {
