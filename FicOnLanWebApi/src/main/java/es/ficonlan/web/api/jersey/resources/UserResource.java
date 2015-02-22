@@ -87,6 +87,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("changeDataUSER",request);
 			userService.changeUserDataUSER(sessionId, user);
+			userService.setSessionLastAccessNow(sessionId);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			if(request!=null) System.out.println("login {" + login + "}");
 			return Response.status(204).build();
@@ -103,6 +104,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("changePasswordUSER",request);
 			userService.changeUserPasswordUSER(sessionId, data.getOldPassword(), data.getNewPassword());
+			userService.setSessionLastAccessNow(sessionId);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			if(request!=null) System.out.println("login {" + login + "}");
 			return Response.status(204).build();
@@ -119,6 +121,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("currentUserUSER",request);
 			User u = userService.getCurrenUserUSER(sessionId);
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + u.getLogin() + "}");
 			return Response.status(200).entity(u).build();
 		} catch (ServiceException e) {
@@ -135,6 +138,7 @@ public class UserResource {
 			RequestControl.showContextData("getUserPermissionsUSER",request);
 			String p = userService.getUserPermissionsUSER(sessionId);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}");
 			return Response.status(200).entity(p).build();
 		} catch (ServiceException e) {
@@ -164,6 +168,7 @@ public class UserResource {
 			if(l.indexOf(orderBy)<0) throw new ServiceException(ServiceException.INCORRECT_FIELD,"orderBy");
 			List<User> l = userService.getAllUsersADMIN(sessionId,startIndex,cont,orderBy,b);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}");
 			return Response.status(200).entity(l).build();
 		} catch (ServiceException e) {
@@ -179,6 +184,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN",request);
 			long l = userService.getAllUsersTAMADMIN(sessionId);
+			userService.setSessionLastAccessNow(sessionId);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			if(request!=null) System.out.println("login {" + login + "}");
 			return Response.status(200).entity(l).build();
@@ -197,6 +203,7 @@ public class UserResource {
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
 			userService.removeUserADMIN(sessionId, userId);
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
 		} catch (ServiceException e) {
@@ -214,6 +221,7 @@ public class UserResource {
 			userService.changeUserDataADMIN(sessionId, userId, user);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
 		} catch (ServiceException e) {
@@ -231,6 +239,7 @@ public class UserResource {
 			userService.changeUserPasswordADMIN(sessionId, userId, data.getOldPassword(), data.getNewPassword());
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
 		} catch (ServiceException e) {
@@ -247,6 +256,7 @@ public class UserResource {
 			RequestControl.showContextData("closeAllUserSessionsADMIN",request);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			String s = userService.getUserPermissionsADMIN(sessionId, userId);
 			return Response.status(200).entity(s).build();
@@ -265,6 +275,7 @@ public class UserResource {
 			String s = userService.addUserPermissionsADMIN(sessionId, userId, permission);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}\t" + "add {" + permission + "}");
 			return Response.status(200).entity(s).build();
 		} catch (ServiceException e) {
@@ -282,6 +293,7 @@ public class UserResource {
 			String s = userService.removeUserPermissionsADMIN(sessionId, userId, permission);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}\t" + "delete {" + permission + "}");
 			return Response.status(200).entity(s).build();
 		} catch (ServiceException e) {

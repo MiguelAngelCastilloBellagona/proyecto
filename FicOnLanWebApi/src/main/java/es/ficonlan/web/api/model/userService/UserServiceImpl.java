@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.ficonlan.web.api.jersey.Main;
+import es.ficonlan.web.api.jersey.resources.util.SessionData;
 import es.ficonlan.web.api.model.email.Email;
 import es.ficonlan.web.api.model.email.EmailFIFOGmail;
 import es.ficonlan.web.api.model.emailtemplate.EmailTemplate;
 import es.ficonlan.web.api.model.emailtemplate.EmailTemplateDao;
 import es.ficonlan.web.api.model.session.Session;
 import es.ficonlan.web.api.model.session.SessionDao;
-import es.ficonlan.web.api.model.util.session.SessionData;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.user.UserDao;
 import es.ficonlan.web.api.model.util.PasswordManager;
@@ -183,6 +183,18 @@ public class UserServiceImpl implements UserService {
 	}
 
 	// USER
+
+	@Override
+	@Transactional
+	public void setSessionLastAccessNow(String sessionId) throws ServiceException {
+		try {
+			Session s = sessionDao.find(sessionId);
+			s.setLastAccess(Calendar.getInstance());
+			sessionDao.save(s);
+		} catch (InstanceException e) {
+			throw new ServiceException(ServiceException.INVALID_SESSION,"Session");
+		}		
+	}
 	
 	@Override
 	@Transactional(readOnly=true)

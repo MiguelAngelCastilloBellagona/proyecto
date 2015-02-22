@@ -2,8 +2,8 @@ package es.ficonlan.web.api.model.userService;
 
 import java.util.List;
 
+import es.ficonlan.web.api.jersey.resources.util.SessionData;
 import es.ficonlan.web.api.model.session.Session;
-import es.ficonlan.web.api.model.util.session.SessionData;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.util.exceptions.ServiceException;
 
@@ -25,6 +25,8 @@ public interface UserService {
 	
 	
 	//USER
+	
+	public void setSessionLastAccessNow(String sessionId) throws ServiceException;
 	
 	public boolean sessionExists(String sessionId) throws ServiceException;
 	

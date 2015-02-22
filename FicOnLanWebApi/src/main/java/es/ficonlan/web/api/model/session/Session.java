@@ -13,9 +13,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
+import es.ficonlan.web.api.jersey.resources.util.SessionData;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.util.exceptions.InstanceException;
-import es.ficonlan.web.api.model.util.session.SessionData;
 
 /**
  * @author Miguel Ángel Castillo Bellagona

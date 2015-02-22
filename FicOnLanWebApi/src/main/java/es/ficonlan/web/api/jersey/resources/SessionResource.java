@@ -18,12 +18,12 @@ import org.glassfish.grizzly.http.server.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.ficonlan.web.api.jersey.resources.util.LoginData;
+import es.ficonlan.web.api.jersey.resources.util.SessionData;
 import es.ficonlan.web.api.jersey.util.ApplicationContextProvider;
 import es.ficonlan.web.api.jersey.util.RequestControl;
 import es.ficonlan.web.api.model.session.Session;
 import es.ficonlan.web.api.model.userService.UserService;
 import es.ficonlan.web.api.model.util.exceptions.ServiceException;
-import es.ficonlan.web.api.model.util.session.SessionData;
 
 /**
  * @author Miguel Ángel Castillo Bellagona
@@ -96,6 +96,7 @@ public class SessionResource {
 		try {
 			RequestControl.showContextData("getSllUserSessionsADMIN",request);
 			List<Session> l = userService.getAllUserSessionsADMIN(sessionId,userId);
+			userService.setSessionLastAccessNow(sessionId);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
@@ -114,6 +115,7 @@ public class SessionResource {
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
 			userService.closeAllUserSessionsADMIN(sessionId,userId);
+			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
 		} catch (ServiceException e) {
