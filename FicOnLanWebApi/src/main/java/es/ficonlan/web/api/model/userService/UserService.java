@@ -64,7 +64,7 @@ public interface UserService {
 	
     public void changeUserDataADMIN(String sessionId, int userId, User userData)  throws ServiceException;
 	
-	public void changeUserPasswordADMIN(String sessionId, int userId, String oldPassword, String newPassword)  throws ServiceException;
+	public void changeUserPasswordADMIN(String sessionId, int userId, String newPassword)  throws ServiceException;
 	
 	public String getUserPermissionsADMIN(String sessionId, int userId) throws ServiceException;
 	

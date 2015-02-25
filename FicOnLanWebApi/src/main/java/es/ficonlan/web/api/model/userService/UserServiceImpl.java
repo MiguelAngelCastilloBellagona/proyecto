@@ -36,8 +36,8 @@ public class UserServiceImpl implements UserService {
 
 	private static final String USERSERVICEPERMISIONLEVEL = "U";
 	
-	private static final String ADMIN_LOGIN = "Admin";
-	private static final String INITIAL_ADMIN_PASS = "initialAdminPass";
+	public static final String ADMIN_LOGIN = "Admin";
+	public static final String INITIAL_ADMIN_PASS = "initialAdminPass";
 	
 	private Properties properties;
 	
@@ -434,8 +434,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public void changeUserPasswordADMIN(String sessionId, int userId,
-			String oldPassword, String newPassword) throws ServiceException {
+	public void changeUserPasswordADMIN(String sessionId, int userId, String newPassword) throws ServiceException {
 		try { 
 			if(!checkPermissions(sessionDao.find(sessionId).getUser(), USERSERVICEPERMISIONLEVEL))
 				throw new ServiceException(ServiceException.PERMISSION_DENIED);
@@ -495,6 +494,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public String removeUserPermissionsADMIN(String sessionId, int userId,
 			String permission) throws ServiceException {
 		try { 
@@ -505,7 +505,7 @@ public class UserServiceImpl implements UserService {
 		}
 		try {
 			User user = userDao.find(userId);
-			if(!user.getPremissions().contains(permission)) 
+			if(user.getPremissions().contains(permission)) 
 			{
 				user.setPremissions(user.getPremissions().replace(permission,""));
 				userDao.save(user);

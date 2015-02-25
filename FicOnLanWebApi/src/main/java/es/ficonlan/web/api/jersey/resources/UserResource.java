@@ -236,7 +236,7 @@ public class UserResource {
 	public Response changePasswordADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, ChangePasswordData data) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN",request);
-			userService.changeUserPasswordADMIN(sessionId, userId, data.getOldPassword(), data.getNewPassword());
+			userService.changeUserPasswordADMIN(sessionId, userId, data.getNewPassword());
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
 			userService.setSessionLastAccessNow(sessionId);
