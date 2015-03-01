@@ -123,8 +123,4 @@ public class SessionResource {
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
 		}	
 	}
-	
-	
-	
-	
 }

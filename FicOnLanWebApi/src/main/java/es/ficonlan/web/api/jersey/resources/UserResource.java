@@ -114,7 +114,6 @@ public class UserResource {
 		}
 	}
 
-	@Path("/currentUser/")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response currentUserUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
@@ -124,23 +123,6 @@ public class UserResource {
 			userService.setSessionLastAccessNow(sessionId);
 			if(request!=null) System.out.println("login {" + u.getLogin() + "}");
 			return Response.status(200).entity(u).build();
-		} catch (ServiceException e) {
-			System.out.println(e.toString());
-			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
-		}
-	}
-	
-	@Path("/getPermissions/")
-	@GET
-	@Produces("text/plain")
-	public Response getUserPermissionsUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
-		try {
-			RequestControl.showContextData("getUserPermissionsUSER",request);
-			String p = userService.getUserPermissionsUSER(sessionId);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
-			if(request!=null) System.out.println("login {" + login + "}");
-			return Response.status(200).entity(p).build();
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
