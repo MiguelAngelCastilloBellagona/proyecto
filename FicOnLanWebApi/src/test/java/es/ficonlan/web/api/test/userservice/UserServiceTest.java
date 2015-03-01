@@ -98,6 +98,9 @@ public class UserServiceTest {
 	
 	@Test
 	public void passwordRecoverTest() throws ServiceException {
+		try {
+			emailTemplateDao.remove(emailTemplateDao.findByName("passwordRecover").getEmailtemplateid());
+		} catch (InstanceException e1) {} catch (NullPointerException e1) {}
 		assertFalse(userService.passwordRecover("email@yopmail.com"));
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
