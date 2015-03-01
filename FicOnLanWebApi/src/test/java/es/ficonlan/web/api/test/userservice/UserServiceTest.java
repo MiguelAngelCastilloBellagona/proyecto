@@ -2,7 +2,8 @@ package es.ficonlan.web.api.test.userservice;
 
 import static es.ficonlan.web.api.model.util.GlobalNames.SPRING_CONFIG_FILE;
 import static es.ficonlan.web.api.test.util.GlobalNames.SPRING_CONFIG_TEST_FILE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +11,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,10 +70,6 @@ public class UserServiceTest {
 	@Before 
 	public void initialize() throws ServiceException {
 	     userService.initialize(); 
-	}
-	
-	@After
-	public void close() throws ServiceException, InstanceException {
 	}
 	
 	@Test
