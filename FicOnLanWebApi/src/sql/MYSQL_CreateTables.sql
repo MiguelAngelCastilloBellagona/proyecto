@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS Session;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS EmailTemplate;
 SET foreign_key_checks = 1;
-
+ 
 -- ------------------------------ Session  -------------------------------------
 
 CREATE TABLE Session (
