@@ -105,6 +105,8 @@ public class UserServiceTest {
 		assertFalse(userService.passwordRecover("email@yopmail.com"));
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
+	    System.out.println(emailTemplateDao.findByName("passwordRecover"));
+	    System.out.println(userService.passwordRecover("email@yopmail.com"));
 	    assertFalse(userService.passwordRecover("email@yopmail.com"));
 	    EmailTemplate e = new EmailTemplate();
 	    e.setName("passwordRecover");
