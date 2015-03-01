@@ -107,7 +107,7 @@ public class UserServiceTest {
 	    userService.addUser(user);
 	    assertFalse(userService.passwordRecover("email@yopmail.com"));
 	    EmailTemplate e = new EmailTemplate();
-	    e.setName("passwordrecover");
+	    e.setName("passwordRecover");
 	    e.setAsunto("Asunto");
 	    e.setContenido(" ");
 	    emailTemplateDao.save(e);
