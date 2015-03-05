@@ -177,16 +177,9 @@ public class UserServiceImpl implements UserService {
 			}
 			else secondPass = true;
 		}
-		Session session = null;
-		boolean uniqueSessionId = true;
-		while(uniqueSessionId) {
-			try {
-				session = new Session(user);
-				sessionDao.find(session.getSessionId());
-			} catch (InstanceException e) {
-				uniqueSessionId = false;
-			}
-			
+		Session session = new Session(user);
+		while(sessionDao.exists(session.getSessionId())) {
+			session = new Session(user);
 		}
 		sessionDao.save(session);
 		return new SessionData(session.getSessionId(),user.getUserId(),secondPass,user.getLogin(), user.getPremissions(), user.getLanguage());
