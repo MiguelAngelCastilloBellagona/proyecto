@@ -71,7 +71,7 @@ public class SessionResource {
 	}	
 	
 	//USER
-	
+	 
 	@DELETE
 	public Response closeSessionUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
 		RequestControl.showContextData("closeSessionUSER",request);
