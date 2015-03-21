@@ -4,6 +4,7 @@ SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS Session;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS EmailTemplate;
+DROP TABLE IF EXISTS Event;
 SET foreign_key_checks = 1;
  
 -- ------------------------------ Session  -------------------------------------
