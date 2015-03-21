@@ -76,9 +76,9 @@ CREATE TABLE EmailTemplate (
     CONSTRAINT pk_email PRIMARY KEY(EmailTemplate_id)
 ) engine=InnoDB;
 
- CREATE INDEX EmailTemplateByname ON EmailTemplate (EmailTemplate_name);
+CREATE INDEX EmailTemplateByname ON EmailTemplate (EmailTemplate_name);
  
- 
+
  
  ALTER TABLE Session ADD CONSTRAINT fk_session_user FOREIGN KEY ( Session_user_id ) REFERENCES User (User_id) ON DELETE CASCADE ON UPDATE CASCADE;
  
