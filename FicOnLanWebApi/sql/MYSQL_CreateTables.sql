@@ -1,5 +1,5 @@
 -- Indexes for primary keys have been explicitly created.
-
+ 
 SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS Session;
 DROP TABLE IF EXISTS User;
