@@ -325,7 +325,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public void closeAllUserSessionsADMIN(String sessionId, int userId)
 			throws ServiceException {
 		try { 

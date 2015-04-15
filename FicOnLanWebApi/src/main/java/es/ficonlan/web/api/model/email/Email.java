@@ -13,15 +13,11 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
 /**
  * @author Miguel Ángel Castillo Bellagona
  * @version 2.2
  */
-@Entity
-@Table(name = "Email")
 public class Email {
 
 	protected int		emailId;

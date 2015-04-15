@@ -43,7 +43,7 @@ public class SessionResource {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response login(@Context Request request, @HeaderParam("sessionId") String sessionId, LoginData loginData) {
+	public Response login(@Context Request request, LoginData loginData) {
 		try {
 			RequestControl.showContextData("login",request);
 			SessionData u = userService.login(loginData.getLogin(), loginData.getPassword());
@@ -114,8 +114,8 @@ public class SessionResource {
 			RequestControl.showContextData("closeAllUserSessionsADMIN",request);
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.closeAllUserSessionsADMIN(sessionId,userId);
 			userService.setSessionLastAccessNow(sessionId);
+			userService.closeAllUserSessionsADMIN(sessionId,userId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
 		} catch (ServiceException e) {
