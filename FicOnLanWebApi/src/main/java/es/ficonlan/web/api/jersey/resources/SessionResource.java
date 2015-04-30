@@ -47,7 +47,7 @@ public class SessionResource {
 		try {
 			RequestControl.showContextData("login",request);
 			SessionData u = userService.login(loginData.getLogin(), loginData.getPassword());
-			if(request!=null) System.out.println("login {" + loginData.getLogin() + "}\t" + "sessionId {" + u.getSessionId() + "}");
+			if(request!=null) System.out.println("login {" + loginData.getLogin() + "}\t");
 			return Response.status(200).entity(u).build();
 		} catch (ServiceException e) {
 			System.out.println("login {" + loginData.getLogin() + "}\t" + e.toString());
@@ -79,7 +79,7 @@ public class SessionResource {
 		try {
 			String login = userService.getCurrenUserUSER(sessionId).getLogin();
 			userService.closeUserSession(sessionId);
-			System.out.println("login {" + login + "}\t" + "sessionId {" + sessionId + "}");
+			System.out.println("login {" + login + "}");
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -92,7 +92,7 @@ public class SessionResource {
 	@Path("/admin/allUserSession/{userId}")
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response getSllUserSessionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
+	public Response getAllUserSessionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("getSllUserSessionsADMIN",request);
 			List<Session> l = userService.getAllUserSessionsADMIN(sessionId,userId);

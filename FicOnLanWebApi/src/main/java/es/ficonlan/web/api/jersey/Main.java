@@ -56,26 +56,27 @@ public class Main {
 	public static HttpServer startServer() {
 
 		final ResourceConfig rc = new ResourceConfig();
-		
+
 		rc.register(Jackson1Feature.class);
-		
+
 		rc.register(UserResource.class);
 		rc.register(SessionResource.class);
-		
+
 		rc.register(CORSResponseFilter.class);
 		rc.register(CustomExceptionMapper.class);
-		
+
 		SSLContextConfigurator sslContext = new SSLContextConfigurator();
 		sslContext.setKeyStoreFile(KEYSTORE_FILE);
 		sslContext.setKeyStorePass(KEYSTORE_PASS);
 		sslContext.setTrustStoreFile(TRUSTSTORE_FILE);
 		sslContext.setTrustStorePass(TRUSTSTORE_PASS);
 
-		return GrizzlyHttpServerFactory.createHttpServer(SERVER_URI, rc, IS_SECURE, new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true));
+		return GrizzlyHttpServerFactory.createHttpServer(SERVER_URI, rc, IS_SECURE,
+				new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(true));
 	}
 
 	public static void main(String[] args) {
-		
+
 		// Spring context initialization
 		@SuppressWarnings("resource")
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("spring-config.xml");
@@ -85,13 +86,14 @@ public class Main {
 		userService.initialize();
 
 		SessionManager.startSessionManager();
-		
+
 		EmailFIFOGmail.startEmailQueueThread();
-		
+
 		// Server Start
-		final HttpServer server = startServer();   
-		
-		System.out.println(String.format("Jersey app started with WADL available at " + "%sapplication.wadl\nHit enter to stop it...", properties.getProperty("server.baseUri")));
+		final HttpServer server = startServer();
+
+		System.out.println(String.format("Jersey app started with WADL available at " + "%sapplication.wadl\nHit enter to stop it...",
+				properties.getProperty("server.baseUri")));
 		try {
 			System.in.read();
 		} catch (IOException e) {

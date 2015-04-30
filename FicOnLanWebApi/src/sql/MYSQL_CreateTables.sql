@@ -53,11 +53,6 @@ CREATE TABLE Event (
 	Event_price                        int DEFAULT 0 ,
 	Event_reg_date_open                datetime NOT NULL  ,
 	Event_reg_date_close               datetime NOT NULL  ,
-	Event_setPaidTemplate_id           bigint UNSIGNED ,
-	Event_onQueueTemplate_id           bigint UNSIGNED ,
-	Event_outstandingTemplate_id       bigint UNSIGNED ,
-	Event_outOfDateTemplate_id         bigint UNSIGNED ,
-	Event_fromQueueToOutstanding_id    bigint UNSIGNED ,
 	Event_rules                        TEXT,
 	CONSTRAINT pk_event PRIMARY KEY ( Event_id ) ,
 	CONSTRAINT Event_name_UNIQUE UNIQUE ( Event_name )
@@ -81,11 +76,5 @@ CREATE INDEX EmailTemplateByname ON EmailTemplate (EmailTemplate_name);
  
 
  
- ALTER TABLE Session ADD CONSTRAINT fk_session_user FOREIGN KEY ( Session_user_id ) REFERENCES User (User_id) ON DELETE CASCADE ON UPDATE CASCADE;
- 
- ALTER TABLE Event ADD CONSTRAINT fk_event_setPaidTemplate FOREIGN KEY ( Event_setPaidTemplate_id ) REFERENCES EmailTemplate (EmailTemplate_id) ON DELETE SET NULL ON UPDATE CASCADE;
- ALTER TABLE Event ADD CONSTRAINT fk_event_onQueueTemplate FOREIGN KEY ( Event_onQueueTemplate_id ) REFERENCES EmailTemplate (EmailTemplate_id) ON DELETE SET NULL ON UPDATE CASCADE;
- ALTER TABLE Event ADD CONSTRAINT fk_event_outstandingTemplate FOREIGN KEY (Event_outstandingTemplate_id ) REFERENCES EmailTemplate (EmailTemplate_id) ON DELETE SET NULL ON UPDATE CASCADE;
- ALTER TABLE Event ADD CONSTRAINT fk_event_outOfDateTemplate FOREIGN KEY ( Event_outOfDateTemplate_id ) REFERENCES EmailTemplate (EmailTemplate_id) ON DELETE SET NULL ON UPDATE CASCADE;
- ALTER TABLE Event ADD CONSTRAINT fk_event_fromQueueToOutstanding FOREIGN KEY ( Event_fromQueueToOutstanding_id ) REFERENCES EmailTemplate (EmailTemplate_id) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE Session ADD CONSTRAINT fk_session_user FOREIGN KEY ( Session_user_id ) REFERENCES User (User_id) ON DELETE CASCADE ON UPDATE CASCADE;
  
