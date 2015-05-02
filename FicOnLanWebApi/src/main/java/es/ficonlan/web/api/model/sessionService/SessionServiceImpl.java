@@ -7,6 +7,8 @@ import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.ficonlan.web.api.jersey.resources.util.SessionData;
@@ -42,7 +44,7 @@ public class SessionServiceImpl implements SessionService {
 
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public boolean checkPermissions(User user, String permisionLevelRequired) {
 		try {
 			return userDao.find(user.getUserId()).getPremissions().contains(permisionLevelRequired);
@@ -51,7 +53,7 @@ public class SessionServiceImpl implements SessionService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly=true, propagation=Propagation.REQUIRED, isolation=Isolation.READ_UNCOMMITTED)
 	private void sessionAcceded(String sessionId) throws InstanceException {
 			sessionDao.find(sessionId).setLastAccess(Calendar.getInstance());
 	}
@@ -83,7 +85,7 @@ public class SessionServiceImpl implements SessionService {
 	//USER
 	
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public boolean sessionExists(String sessionId) throws ServiceException {
 		try {
 			Session s = sessionDao.find(sessionId);
@@ -103,7 +105,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public User getUserUSER(String sessionId) throws ServiceException {
 		try {
 			sessionAcceded(sessionId);
@@ -153,7 +155,7 @@ public class SessionServiceImpl implements SessionService {
 	// ADMIN
 
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_UNCOMMITTED)
 	public List<Session> getAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException {
 		try { 
 			sessionAcceded(sessionId);

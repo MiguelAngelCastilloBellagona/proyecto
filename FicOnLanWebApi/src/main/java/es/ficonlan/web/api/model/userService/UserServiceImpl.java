@@ -12,6 +12,7 @@ import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.ficonlan.web.api.jersey.Main;
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
 
 	}
 
-	@Transactional(readOnly=true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public boolean checkPermissions(User user, String permisionLevelRequired) {
 		try {
 			return userDao.find(user.getUserId()).getPremissions().contains(permisionLevelRequired);
@@ -193,7 +194,7 @@ public class UserServiceImpl implements UserService {
 	// ADMIN
 	
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public User getUserADMIN(String sessionId, int userId) throws ServiceException {
 		try { 
 			if(!checkPermissions(sessionService.getUserUSER(sessionId), USERSERVICEPERMISIONLEVEL))
@@ -205,7 +206,7 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public List<User> getAllUsersADMIN(String sessionId, int startIndex, int maxResults, String orderBy, boolean desc) throws ServiceException {
 		if(!checkPermissions(sessionService.getUserUSER(sessionId), USERSERVICEPERMISIONLEVEL))
 			throw new ServiceException(ServiceException.PERMISSION_DENIED);
@@ -213,7 +214,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public long getAllUsersTAMADMIN(String sessionId) throws ServiceException {
 		if(!checkPermissions(sessionService.getUserUSER(sessionId), USERSERVICEPERMISIONLEVEL))
 			throw new ServiceException(ServiceException.PERMISSION_DENIED);
@@ -221,7 +222,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
 	public List<User> findUsersByNameADMIN(String sessionId, String name, int startindex, int maxResults) throws ServiceException {
 		if(!checkPermissions(sessionService.getUserUSER(sessionId), USERSERVICEPERMISIONLEVEL))
 			throw new ServiceException(ServiceException.PERMISSION_DENIED);
