@@ -22,6 +22,7 @@ import es.ficonlan.web.api.jersey.resources.util.SessionData;
 import es.ficonlan.web.api.jersey.util.ApplicationContextProvider;
 import es.ficonlan.web.api.jersey.util.RequestControl;
 import es.ficonlan.web.api.model.session.Session;
+import es.ficonlan.web.api.model.sessionService.SessionService;
 import es.ficonlan.web.api.model.userService.UserService;
 import es.ficonlan.web.api.model.util.exceptions.ServiceException;
 
@@ -33,10 +34,16 @@ public class SessionResource {
 
 	@Autowired
     private UserService userService;
+	
+	@Autowired
+    private SessionService sessionService;
     
 	public SessionResource(){
 		this.userService  = ApplicationContextProvider.getApplicationContext().getBean(UserService.class);
+		this.sessionService  = ApplicationContextProvider.getApplicationContext().getBean(SessionService.class);
 	}
+	
+	
 	
 	//ANONYMOUS
 	
@@ -46,7 +53,7 @@ public class SessionResource {
 	public Response login(@Context Request request, LoginData loginData) {
 		try {
 			RequestControl.showContextData("login",request);
-			SessionData u = userService.login(loginData.getLogin(), loginData.getPassword());
+			SessionData u = sessionService.login(loginData.getLogin(), loginData.getPassword());
 			if(request!=null) System.out.println("login {" + loginData.getLogin() + "}\t");
 			return Response.status(200).entity(u).build();
 		} catch (ServiceException e) {
@@ -77,8 +84,8 @@ public class SessionResource {
 		RequestControl.showContextData("closeSessionUSER",request);
 		if(request!=null) 
 		try {
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
-			userService.closeUserSession(sessionId);
+			String login = sessionService.getUserUSER(sessionId).getLogin();
+			sessionService.closeUserSession(sessionId);
 			System.out.println("login {" + login + "}");
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
@@ -95,9 +102,8 @@ public class SessionResource {
 	public Response getAllUserSessionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("getSllUserSessionsADMIN",request);
-			List<Session> l = userService.getAllUserSessionsADMIN(sessionId,userId);
-			userService.setSessionLastAccessNow(sessionId);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			List<Session> l = sessionService.getAllUserSessionsADMIN(sessionId,userId);
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(200).entity(l).build();
@@ -112,10 +118,9 @@ public class SessionResource {
 	public Response closeAllUserSessionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN",request);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
-			userService.closeAllUserSessionsADMIN(sessionId,userId);
+			sessionService.closeAllUserSessionsADMIN(sessionId,userId);
 			if(request!=null) System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
 		} catch (ServiceException e) {

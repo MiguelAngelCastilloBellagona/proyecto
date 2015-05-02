@@ -25,6 +25,7 @@ import es.ficonlan.web.api.model.emailtemplate.EmailTemplate;
 import es.ficonlan.web.api.model.emailtemplate.EmailTemplateDao;
 import es.ficonlan.web.api.model.session.Session;
 import es.ficonlan.web.api.model.session.SessionDao;
+import es.ficonlan.web.api.model.sessionService.SessionService;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.user.UserDao;
 import es.ficonlan.web.api.model.userService.UserService;
@@ -38,7 +39,7 @@ import es.ficonlan.web.api.model.util.exceptions.ServiceException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {SPRING_CONFIG_FILE, SPRING_CONFIG_TEST_FILE})
 @Transactional
-public class UserServiceTest {
+public class UserSessionServiceTest {
 	
 	private static Properties properties;
 
@@ -67,6 +68,9 @@ public class UserServiceTest {
 	@Autowired
 	private EmailTemplateDao emailTemplateDao;
 	
+	@Autowired
+    private SessionService sessionService;
+	
 	@Before 
 	public void initialize() throws ServiceException {
 	     userService.initialize(); 
@@ -82,14 +86,14 @@ public class UserServiceTest {
 	public void closeOldSessionsTest() throws ServiceException, InstanceException {
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
-	    Session s = sessionDao.find(userService.login("login", "password").getSessionId());
-	    userService.closeOldSessions();
+	    Session s = sessionDao.find(sessionService.login("login", "password").getSessionId());
+	    sessionService.closeOldSessions();
 	    sessionDao.find(s.getSessionId());
 	    
 	    Calendar now = Calendar.getInstance();
 	    now.add(Calendar.MINUTE, (SESSION_TIMEOUT*-1)-1);
 	    s.setLastAccess(now);
-	    userService.closeOldSessions();
+	    sessionService.closeOldSessions();
 	    try {
 	    	sessionDao.find(s.getSessionId());
 	    	Assert.fail();
@@ -141,57 +145,43 @@ public class UserServiceTest {
 	@Test
 	public void loginTest() throws ServiceException {
 		try {
-			userService.login("login", "password");
+			sessionService.login("login", "password");
 			Assert.fail();
 		} catch (ServiceException e) {}
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
 	    try {
-			userService.login("login2", "password");
+	    	sessionService.login("login2", "password");
 			Assert.fail();
 		} catch (ServiceException e) {}
 	    try {
-			userService.login("login", "password2");
+	    	sessionService.login("login", "password2");
 			Assert.fail();
 		} catch (ServiceException e) {}
 	    try {
-			userService.login("login2", "password2");
+	    	sessionService.login("login2", "password2");
 			Assert.fail();
 		} catch (ServiceException e) {}
 
-	    userService.login("login", "password");   
+	    sessionService.login("login", "password");   
 	}
  
-	@Test
-	public void setSessionLastAccessNowTest() throws InstanceException, ServiceException {
-		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
-	    userService.addUser(user);
-	    Session s = sessionDao.find(userService.login("login", "password").getSessionId());
-	    Calendar n = Calendar.getInstance();
-	    n.add(Calendar.MINUTE, 14);
-	    s.setLastAccess(n);
-	    Assert.assertEquals(n.getTime(), s.getLastAccess().getTime());
-	    sessionDao.save(s);
-	    userService.setSessionLastAccessNow(s.getSessionId());
-	    //Assert.assertEquals(Calendar.getInstance().getTime(), s.getLastAccess().getTime());
-	}
-	
 	@Test
 	public void sessionExistsTest() throws InstanceException, ServiceException {
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
-	    String sessionId = userService.login("login", "password").getSessionId();
-	    Assert.assertTrue(userService.sessionExists(sessionId));
+	    String sessionId = sessionService.login("login", "password").getSessionId();
+	    Assert.assertTrue(sessionService.sessionExists(sessionId));
 	    sessionDao.remove(sessionId);
-	    Assert.assertFalse(userService.sessionExists(sessionId));
+	    Assert.assertFalse(sessionService.sessionExists(sessionId));
 	}
 	
 	@Test
-	public void getCurrenUserUSERTest() throws ServiceException {
+	public void getUserUSERTest() throws ServiceException {
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
-	    String sessionId = userService.login("login", "password").getSessionId();
-	    User user2 = userService.getCurrenUserUSER(sessionId);
+	    String sessionId = sessionService.login("login", "password").getSessionId();
+	    User user2 = sessionService.getUserUSER(sessionId);
 	    Assert.assertEquals(user.getUserId(), user2.getUserId());
 	}
 	
@@ -199,7 +189,7 @@ public class UserServiceTest {
 	public void removeUserUSERTest() throws ServiceException {
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
-	    String sessionId = userService.login("login", "password").getSessionId();
+	    String sessionId = sessionService.login("login", "password").getSessionId();
 	    userService.removeUserUSER(sessionId);
 	    try {
 			userService.removeUserUSER(sessionId);
@@ -213,7 +203,7 @@ public class UserServiceTest {
 	    userService.addUser(user1);
 	    User user2 = new User("", "User2", "login2", "password2", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user2);
-	    String sessionId = userService.login("login2", "password2").getSessionId();
+	    String sessionId = sessionService.login("login2", "password2").getSessionId();
 	    User userData = new User("", "User", "login", "password", "00000000C", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    try {
 			userService.changeUserDataUSER(sessionId, userData);
@@ -227,7 +217,7 @@ public class UserServiceTest {
 	public void changeUserPasswordUSERTest () throws ServiceException {
 		User user1 = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
-	    String sessionId = userService.login("login", "password").getSessionId();
+	    String sessionId = sessionService.login("login", "password").getSessionId();
 	    try {
 			userService.changeUserPasswordUSER(sessionId, "password2", "newPassword");
 			Assert.fail();
@@ -242,7 +232,7 @@ public class UserServiceTest {
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = userService.login("login", "password").getSessionId();
+	    String sessionId = sessionService.login("login", "password").getSessionId();
 	    try {
 			userService.getUserPermissionsUSER(sessionId + "asd");
 			Assert.fail();
@@ -255,12 +245,12 @@ public class UserServiceTest {
 	public void closeAllUserSessionsTest () throws ServiceException {
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
-		String sessionId1 = userService.login("login", "password").getSessionId();
-		String sessionId2 = userService.login("login", "password").getSessionId();
-		String sessionId3 = userService.login("login", "password").getSessionId();
+		String sessionId1 = sessionService.login("login", "password").getSessionId();
+		String sessionId2 = sessionService.login("login", "password").getSessionId();
+		String sessionId3 = sessionService.login("login", "password").getSessionId();
 		List<Session> ls = sessionDao.findSessionByUserId(user.getUserId());
 		Assert.assertEquals(3, ls.size());
-		userService.closeAllUserSessions(sessionId1);
+		sessionService.closeAllUserSessions(sessionId1);
 		ls = sessionDao.findSessionByUserId(user.getUserId());
 		Assert.assertEquals(0, ls.size());
 	}
@@ -269,22 +259,22 @@ public class UserServiceTest {
 	public void closeUserSessionTest () throws ServiceException {
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
-		String sessionId1 = userService.login("login", "password").getSessionId();
-		String sessionId2 = userService.login("login", "password").getSessionId();
-		String sessionId3 = userService.login("login", "password").getSessionId();
+		String sessionId1 = sessionService.login("login", "password").getSessionId();
+		String sessionId2 = sessionService.login("login", "password").getSessionId();
+		String sessionId3 = sessionService.login("login", "password").getSessionId();
 		List<Session> ls = sessionDao.findSessionByUserId(user.getUserId());
 		Assert.assertEquals(3, ls.size());
-		userService.closeUserSession(sessionId1);
+		sessionService.closeUserSession(sessionId1);
 		ls = sessionDao.findSessionByUserId(user.getUserId());
 		Assert.assertEquals(2, ls.size());
-		userService.closeUserSession(sessionId2);
+		sessionService.closeUserSession(sessionId2);
 		ls = sessionDao.findSessionByUserId(user.getUserId());
 		Assert.assertEquals(1, ls.size());
-		userService.closeUserSession(sessionId3);
+		sessionService.closeUserSession(sessionId3);
 		ls = sessionDao.findSessionByUserId(user.getUserId());
 		Assert.assertEquals(0, ls.size());
 		try {
-			userService.closeUserSession(sessionId1);
+			sessionService.closeUserSession(sessionId1);
 			Assert.fail();
 		} catch (ServiceException e) {}
 	}
@@ -293,21 +283,21 @@ public class UserServiceTest {
 	@Test
 	public void getAllUserSessionsADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
-		String sessionId1 = userService.login("login", "password").getSessionId();
-		String sessionId2 = userService.login("login", "password").getSessionId();
-		String sessionId3 = userService.login("login", "password").getSessionId();
-		List<Session> ls = userService.getAllUserSessionsADMIN(sesionIdAdmin,user.getUserId());
+		String sessionId1 = sessionService.login("login", "password").getSessionId();
+		String sessionId2 = sessionService.login("login", "password").getSessionId();
+		String sessionId3 = sessionService.login("login", "password").getSessionId();
+		List<Session> ls = sessionService.getAllUserSessionsADMIN(sesionIdAdmin,user.getUserId());
 		Assert.assertEquals(3, ls.size());
 	}
 	
 	@Test
 	public void getUserADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
@@ -318,7 +308,7 @@ public class UserServiceTest {
 	@Test
 	public void getAllUsersADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("AU", "User", "login1", "password", "00000000A", "email1@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user1);
@@ -333,7 +323,7 @@ public class UserServiceTest {
 	@Test
 	public void getAllUsersTAMADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("AU", "User", "login1", "password", "00000000A", "email1@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user1);
@@ -348,7 +338,7 @@ public class UserServiceTest {
 	@Test
 	public void findUsersByNameADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("AU", "User", "login1", "password", "00000000A", "email1@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user1);
@@ -363,7 +353,7 @@ public class UserServiceTest {
 	@Test
 	public void removeUserADMINTest () throws ServiceException, InstanceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
@@ -381,13 +371,13 @@ public class UserServiceTest {
 	@Test
 	public void changeUserDataADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = new User("", "User2", "login2", "password2", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user2);
-	    String sessionId = userService.login("login2", "password2").getSessionId();
+	    String sessionId = sessionService.login("login2", "password2").getSessionId();
 	    User userData = new User("", "User", "login", "password", "00000000C", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    try {
 			userService.changeUserDataADMIN(sesionIdAdmin, user1.getUserId(), userData);
@@ -404,7 +394,7 @@ public class UserServiceTest {
 	@Test
 	public void changeUserPasswordADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
@@ -415,14 +405,14 @@ public class UserServiceTest {
 	@Test
 	public void getUserPermissionsADMINest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = userService.login("login", "password").getSessionId();
+	    String sessionId = sessionService.login("login", "password").getSessionId();
 	    try {
 			userService.getUserPermissionsADMIN(sessionId + "asd",user2.getUserId());
 			Assert.fail();
@@ -433,14 +423,14 @@ public class UserServiceTest {
 	@Test
 	public void addUserPermissionsADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = userService.login("login", "password").getSessionId();
+	    String sessionId = sessionService.login("login", "password").getSessionId();
 	    try {
 			userService.getUserPermissionsADMIN(sessionId + "asd",user2.getUserId());
 			Assert.fail();
@@ -459,14 +449,14 @@ public class UserServiceTest {
 	@Test
 	public void removeUserPermissionsADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = userService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
 		
 		User user1 = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = userService.login("login", "password").getSessionId();
+	    String sessionId = sessionService.login("login", "password").getSessionId();
 	    try {
 			userService.removeUserPermissionsADMIN(sessionId + "asd",user2.getUserId(),"A");
 			Assert.fail();

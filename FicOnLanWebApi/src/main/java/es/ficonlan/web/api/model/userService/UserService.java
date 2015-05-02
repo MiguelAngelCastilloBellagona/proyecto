@@ -2,8 +2,6 @@ package es.ficonlan.web.api.model.userService;
 
 import java.util.List;
 
-import es.ficonlan.web.api.jersey.resources.util.SessionData;
-import es.ficonlan.web.api.model.session.Session;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.util.exceptions.ServiceException;
 
@@ -21,16 +19,9 @@ public interface UserService {
     
 	public User addUser(User user) throws ServiceException;
 	
-	public SessionData login(String login, String password)  throws ServiceException;
-	
 	
 	//USER
-	
-	public void setSessionLastAccessNow(String sessionId) throws ServiceException;
-	
-	public boolean sessionExists(String sessionId) throws ServiceException;
-	
-	public User getCurrenUserUSER(String sessionId) throws ServiceException;
+
 	
 	public void removeUserUSER(String sessionId) throws ServiceException;
 	
@@ -40,17 +31,9 @@ public interface UserService {
 	
 	public String getUserPermissionsUSER(String sessionId) throws ServiceException;
 	
-	public void closeAllUserSessions(String sessionId) throws ServiceException;
-	
-	public void closeUserSession(String sessionId) throws ServiceException;
-	
 	
 	//ADMIN
 	
-	
-	public List<Session> getAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException;
-	
-	public void closeAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException;
 	
 	public User getUserADMIN(String sessionId, int userId) throws ServiceException;
 	
@@ -72,7 +55,4 @@ public interface UserService {
 	
 	public String removeUserPermissionsADMIN(String sessionId, int userId, String permission) throws ServiceException;
 	
-	//OTHER
-
-	public void closeOldSessions();
 }

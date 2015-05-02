@@ -18,9 +18,8 @@ import es.ficonlan.web.api.jersey.resources.SessionResource;
 import es.ficonlan.web.api.jersey.resources.UserResource;
 import es.ficonlan.web.api.jersey.util.CORSResponseFilter;
 import es.ficonlan.web.api.jersey.util.CustomExceptionMapper;
-import es.ficonlan.web.api.model.email.EmailFIFOGmail;
+import es.ficonlan.web.api.model.sessionService.SessionService;
 import es.ficonlan.web.api.model.userService.UserService;
-import es.ficonlan.web.api.model.util.session.SessionManager;
 
 /**
  * @author Miguel Ángel Castillo
@@ -81,13 +80,11 @@ public class Main {
 		@SuppressWarnings("resource")
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("spring-config.xml");
 
-		// UserService Initialization
+		// Initialization
 		UserService userService = ctx.getBean(UserService.class);
 		userService.initialize();
-
-		SessionManager.startSessionManager();
-
-		EmailFIFOGmail.startEmailQueueThread();
+		SessionService sessionService = ctx.getBean(SessionService.class);
+		sessionService.initialize();
 
 		// Server Start
 		final HttpServer server = startServer();

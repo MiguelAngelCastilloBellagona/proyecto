@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import es.ficonlan.web.api.jersey.resources.util.ChangePasswordData;
 import es.ficonlan.web.api.jersey.util.ApplicationContextProvider;
 import es.ficonlan.web.api.jersey.util.RequestControl;
+import es.ficonlan.web.api.model.sessionService.SessionService;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.userService.UserService;
 import es.ficonlan.web.api.model.util.exceptions.ServiceException;
@@ -38,10 +39,14 @@ public class UserResource {
 	private ArrayList<String> l;
 
 	@Autowired
-	private UserService userService;
+    private UserService userService;
+	
+	@Autowired
+    private SessionService sessionService;
 
 	public UserResource() {
-		this.userService = ApplicationContextProvider.getApplicationContext().getBean(UserService.class);
+		this.userService  = ApplicationContextProvider.getApplicationContext().getBean(UserService.class);
+		this.sessionService  = ApplicationContextProvider.getApplicationContext().getBean(SessionService.class);
 		l = new ArrayList<String>();
 		l.add(s[0]);
 		l.add(s[1]);
@@ -78,7 +83,7 @@ public class UserResource {
 	public Response removeUserUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
 		try {
 			RequestControl.showContextData("removeUserUSER", request);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			userService.removeUserUSER(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}");
@@ -95,8 +100,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("changeDataUSER", request);
 			userService.changeUserDataUSER(sessionId, user);
-			userService.setSessionLastAccessNow(sessionId);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			if (request != null)
 				System.out.println("login {" + login + "}");
 			return Response.status(204).build();
@@ -113,8 +117,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("changePasswordUSER", request);
 			userService.changeUserPasswordUSER(sessionId, data.getOldPassword(), data.getNewPassword());
-			userService.setSessionLastAccessNow(sessionId);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			if (request != null)
 				System.out.println("login {" + login + "}");
 			return Response.status(204).build();
@@ -129,8 +132,7 @@ public class UserResource {
 	public Response currentUserUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
 		try {
 			RequestControl.showContextData("currentUserUSER", request);
-			User u = userService.getCurrenUserUSER(sessionId);
-			userService.setSessionLastAccessNow(sessionId);
+			User u = sessionService.getUserUSER(sessionId);
 			if (request != null)
 				System.out.println("login {" + u.getLogin() + "}");
 			return Response.status(200).entity(u).build();
@@ -159,8 +161,7 @@ public class UserResource {
 			if (l.indexOf(orderBy) < 0)
 				throw new ServiceException(ServiceException.INCORRECT_FIELD, "orderBy");
 			List<User> l = userService.getAllUsersADMIN(sessionId, startIndex, cont, orderBy, b);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			if (request != null)
 				System.out.println("login {" + login + "}");
 			return Response.status(200).entity(l).build();
@@ -177,8 +178,7 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
 			long l = userService.getAllUsersTAMADMIN(sessionId);
-			userService.setSessionLastAccessNow(sessionId);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			if (request != null)
 				System.out.println("login {" + login + "}");
 			return Response.status(200).entity(l).build();
@@ -194,10 +194,9 @@ public class UserResource {
 	public Response removeUserADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
 			userService.removeUserADMIN(sessionId, userId);
-			userService.setSessionLastAccessNow(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
@@ -215,9 +214,8 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
 			userService.changeUserDataADMIN(sessionId, userId, user);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
@@ -235,9 +233,8 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
 			userService.changeUserPasswordADMIN(sessionId, userId, data.getNewPassword());
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			return Response.status(203).build();
@@ -254,9 +251,8 @@ public class UserResource {
 			@PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
 			String s = userService.getUserPermissionsADMIN(sessionId, userId);
@@ -275,9 +271,8 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
 			String s = userService.addUserPermissionsADMIN(sessionId, userId, permission);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}\t" + "target {" + target + "}\t" + "add {" + permission + "}");
 			return Response.status(200).entity(s).build();
@@ -295,9 +290,8 @@ public class UserResource {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
 			String s = userService.removeUserPermissionsADMIN(sessionId, userId, permission);
-			String login = userService.getCurrenUserUSER(sessionId).getLogin();
+			String login = sessionService.getUserUSER(sessionId).getLogin();
 			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.setSessionLastAccessNow(sessionId);
 			if (request != null)
 				System.out.println("login {" + login + "}\t" + "target {" + target + "}\t" + "delete {" + permission + "}");
 			return Response.status(200).entity(s).build();

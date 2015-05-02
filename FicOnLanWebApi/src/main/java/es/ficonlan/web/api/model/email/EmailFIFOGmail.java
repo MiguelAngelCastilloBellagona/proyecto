@@ -8,35 +8,30 @@ import java.util.Queue;
 
 import es.ficonlan.web.api.jersey.Main;
 
-public class EmailFIFOGmail {
+public class EmailFIFOGmail implements EmailFIFO {
 
-	public static Queue<Email> emails = new LinkedList<Email>();
+	private Queue<Email> emails = new LinkedList<Email>();
 	
-	private static String emailAdressUser;
+	private String emailAdressUser;
 	
-	private static String emailAdressPassword;
+	private String emailAdressPassword;
 	
-	private static Properties properties;
+	private Properties properties;
 
-	static {
+	public EmailFIFOGmail() {
 		try {
-			properties = new Properties();
+			this.properties = new Properties();
 			InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("backend.properties");
 			properties.load(inputStream);
+			emailAdressUser = properties.getProperty("gmail.user");
+			emailAdressPassword = properties.getProperty("gmail.password");
 		} catch (IOException e) {
 			throw new RuntimeException("Could not read config file: " + e.getMessage());
 		}
+		this.startEmailQueueThread();
 	}
 	
-	private static final String GMAIL_USER = properties.getProperty("gmail.user");
-	private static final String GMAIL_PASSWORD = properties.getProperty("gmail.password");
-	
-	static {
-		emailAdressUser = GMAIL_USER;
-		emailAdressPassword = GMAIL_PASSWORD;
-	}
-
-	public static void startEmailQueueThread() {
+	public void startEmailQueueThread() {
 		Thread mailFIFO = new Thread() {
 			@Override
 			public void run() {
@@ -72,15 +67,15 @@ public class EmailFIFOGmail {
 		mailFIFO.start();
 	}
 
-	public static int mailQueueSize() {
+	public int mailQueueSize() {
 		return emails.size();
 	}
 	
-	public static void adEmailToQueue(Email email) {
+	public void adEmailToQueue(Email email) {
 		emails.add(email);
 	}
 	
-	public static void setEmailAdressData(String user, String password) {
+	public void setEmailAdressData(String user, String password) {
 		emailAdressUser = user;
 		emailAdressPassword = password;
 	}

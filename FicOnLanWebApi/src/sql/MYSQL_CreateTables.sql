@@ -14,7 +14,7 @@ CREATE TABLE Session (
 	Session_user_id				bigint UNSIGNED NOT NULL ,
 	Session_lastAccess			timestamp ,
 	CONSTRAINT Session_PK PRIMARY KEY ( Session_id ) 
-) engine=InnoDB;
+) engine=MEMORY;
 
 -- ------------------------------ User -------------------------------------
 
