@@ -16,6 +16,7 @@ CREATE TABLE Session (
 	CONSTRAINT Session_PK PRIMARY KEY ( Session_id ) 
 ) engine=MEMORY;
 
+CREATE INDEX Session_PK_INDEX USING HASH on Session (Session_id);
 -- ------------------------------ User -------------------------------------
 
 CREATE TABLE User ( 

@@ -62,7 +62,7 @@ public class SessionServiceImpl implements SessionService {
 	// ANONYMOUS
 	
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional
 	public SessionData login(String login, String password) throws ServiceException {
 		if(login==null) throw new ServiceException(ServiceException.MISSING_FIELD,"Login");
 		if(password ==null) throw new ServiceException(ServiceException.MISSING_FIELD,"Password");
@@ -86,7 +86,7 @@ public class SessionServiceImpl implements SessionService {
 	//USER
 	
 	@Override
-	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public boolean sessionExists(String sessionId) throws ServiceException {
 		try {
 			Session s = sessionDao.find(sessionId);
@@ -106,7 +106,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public User getUserUSER(String sessionId) throws ServiceException {
 		try {
 			sessionAcceded(sessionId);
@@ -156,7 +156,7 @@ public class SessionServiceImpl implements SessionService {
 	// ADMIN
 
 	@Override
-	@Transactional(readOnly=true, isolation=Isolation.READ_UNCOMMITTED)
+	@Transactional(isolation=Isolation.READ_UNCOMMITTED)
 	public List<Session> getAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException {
 		try { 
 			sessionAcceded(sessionId);
