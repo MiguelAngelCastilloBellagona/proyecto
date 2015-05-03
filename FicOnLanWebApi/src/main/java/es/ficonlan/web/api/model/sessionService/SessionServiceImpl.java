@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.ficonlan.web.api.jersey.resources.util.SessionData;
 import es.ficonlan.web.api.model.session.Session;
 import es.ficonlan.web.api.model.session.SessionDao;
+import es.ficonlan.web.api.model.sessionmanager.SessionManagerFactory;
 import es.ficonlan.web.api.model.user.User;
 import es.ficonlan.web.api.model.user.UserDao;
 import es.ficonlan.web.api.model.util.PasswordManager;

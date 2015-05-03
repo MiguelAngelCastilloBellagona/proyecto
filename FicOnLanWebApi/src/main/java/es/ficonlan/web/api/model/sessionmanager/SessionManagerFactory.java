@@ -1,12 +1,10 @@
-package es.ficonlan.web.api.model.sessionService;
+package es.ficonlan.web.api.model.sessionmanager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
-
-import es.ficonlan.web.api.model.sessionmanager.SessionManager;
 
 @SuppressWarnings("rawtypes")
 public class SessionManagerFactory {
