@@ -24,8 +24,6 @@ import es.ficonlan.web.api.model.util.exceptions.ServiceException;
 @Service("SessionManager")
 @Transactional
 public class SessionServiceImpl implements SessionService {
-	
-	private static final String SESSIONSERVICEPERMISIONLEVEL = "S";
 
 	private int SESSION_TIMEOUT;
 	
@@ -45,15 +43,6 @@ public class SessionServiceImpl implements SessionService {
 
 	}
 	
-	@Transactional(readOnly=true, isolation=Isolation.READ_COMMITTED)
-	public boolean checkPermissions(User user, String permisionLevelRequired) {
-		try {
-			return userDao.find(user.getUserId()).getPremissions().contains(permisionLevelRequired);
-		} catch (InstanceException e) {
-			return false;
-		}
-	}
-
 	@Transactional(readOnly=true, propagation=Propagation.REQUIRED, isolation=Isolation.READ_UNCOMMITTED)
 	private void sessionAcceded(String sessionId) throws InstanceException {
 			sessionDao.find(sessionId).setLastAccess(Calendar.getInstance());
@@ -157,27 +146,14 @@ public class SessionServiceImpl implements SessionService {
 
 	@Override
 	@Transactional(isolation=Isolation.READ_UNCOMMITTED)
-	public List<Session> getAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException {
-		try { 
-			sessionAcceded(sessionId);
-			if(!checkPermissions(sessionDao.find(sessionId).getUser(), SESSIONSERVICEPERMISIONLEVEL))
-				throw new ServiceException(ServiceException.PERMISSION_DENIED);
-		} catch (InstanceException e) {
-			throw new ServiceException(ServiceException.INVALID_SESSION,"Session");
-		}
+	public List<Session> getAllUserSessionsADMIN(int userId) throws ServiceException {
 		return sessionDao.findSessionByUserId(userId);
 	}
 
 	@Override
 	@Transactional
-	public void closeAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException {
-		try { 
-			sessionAcceded(sessionId);
-			if(!checkPermissions(sessionDao.find(sessionId).getUser(), SESSIONSERVICEPERMISIONLEVEL))
-				throw new ServiceException(ServiceException.PERMISSION_DENIED);
-		} catch (InstanceException e) {
-			throw new ServiceException(ServiceException.INVALID_SESSION,"Session");
-		}
+	public void closeAllUserSessionsADMIN(int userId) throws ServiceException {
+		
 		List<Session> list = sessionDao.findSessionByUserId(userId);
 		
 		for(Session s : list) {

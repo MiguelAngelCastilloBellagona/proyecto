@@ -35,9 +35,9 @@ public interface SessionService {
 	//ADMIN
 	
 	
-	public List<Session> getAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException;
+	public List<Session> getAllUserSessionsADMIN(int userId) throws ServiceException;
 	
-	public void closeAllUserSessionsADMIN(String sessionId, int userId) throws ServiceException;
+	public void closeAllUserSessionsADMIN(int userId) throws ServiceException;
 	
 	//OTHER
 

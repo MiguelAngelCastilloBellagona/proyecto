@@ -53,6 +53,7 @@ public class UserSessionServiceTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static final int SESSION_TIMEOUT = Math.abs(Integer.parseInt(properties.getProperty("session.timeout")));
 	
 
@@ -81,7 +82,7 @@ public class UserSessionServiceTest {
 		
 	}
 	
-	
+	/*
 	@Test
 	public void closeOldSessionsTest() throws ServiceException, InstanceException {
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
@@ -99,6 +100,7 @@ public class UserSessionServiceTest {
 	    	Assert.fail();
 	    } catch (InstanceException e) { }
 	}
+	*/
 	
 	@Test
 	public void passwordRecoverTest() throws ServiceException {
@@ -189,10 +191,9 @@ public class UserSessionServiceTest {
 	public void removeUserUSERTest() throws ServiceException {
 		User user = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user);
-	    String sessionId = sessionService.login("login", "password").getSessionId();
-	    userService.removeUserUSER(sessionId);
+	    userService.removeUser(user.getUserId());
 	    try {
-			userService.removeUserUSER(sessionId);
+			userService.removeUser(user.getUserId());
 			Assert.fail();
 		} catch (ServiceException e) {}
 	}
@@ -203,26 +204,21 @@ public class UserSessionServiceTest {
 	    userService.addUser(user1);
 	    User user2 = new User("", "User2", "login2", "password2", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user2);
-	    String sessionId = sessionService.login("login2", "password2").getSessionId();
 	    User userData = new User("", "User", "login", "password", "00000000C", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
-	    try {
-			userService.changeUserDataUSER(sessionId, userData);
-			Assert.fail();
-		} catch (ServiceException e) {}
 	    userData = new User("", "User", "login3", "password", "00000000C", "email3@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
-		userService.changeUserDataUSER(sessionId, userData);
+		userService.changeUserData(user2.getUserId(), userData);
 	}
 	
 	@Test
 	public void changeUserPasswordUSERTest () throws ServiceException {
 		User user1 = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
-	    String sessionId = sessionService.login("login", "password").getSessionId();
+	    User user = userDao.findUserBylogin("login");
 	    try {
-			userService.changeUserPasswordUSER(sessionId, "password2", "newPassword");
+			userService.changeUserPasswordUSER(user.getUserId(), "password2", "newPassword");
 			Assert.fail();
 		} catch (ServiceException e) {}
-	    userService.changeUserPasswordUSER(sessionId, "password", "newPassword");
+	    userService.changeUserPasswordUSER(user.getUserId(), "password", "newPassword");
 	}
 	
 	@Test
@@ -232,12 +228,7 @@ public class UserSessionServiceTest {
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = sessionService.login("login", "password").getSessionId();
-	    try {
-			userService.getUserPermissionsUSER(sessionId + "asd");
-			Assert.fail();
-		} catch (ServiceException e) {}
-	    Assert.assertEquals("AU",userService.getUserPermissionsUSER(sessionId));
+	    Assert.assertEquals("AU",userService.getUserPermissions(sessionService.login("login", "password").getUserId()));
 	}
 	
 	@SuppressWarnings("unused")
@@ -290,41 +281,35 @@ public class UserSessionServiceTest {
 		String sessionId1 = sessionService.login("login", "password").getSessionId();
 		String sessionId2 = sessionService.login("login", "password").getSessionId();
 		String sessionId3 = sessionService.login("login", "password").getSessionId();
-		List<Session> ls = sessionService.getAllUserSessionsADMIN(sesionIdAdmin,user.getUserId());
+		List<Session> ls = sessionService.getAllUserSessionsADMIN(user.getUserId());
 		Assert.assertEquals(3, ls.size());
 	}
 	
 	@Test
 	public void getUserADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
-		User user2 = userService.getUserADMIN(sesionIdAdmin,user.getUserId());
+		User user2 = userService.getUser(user.getUserId());
 		Assert.assertEquals(user.getUserId(), user2.getUserId());
 	}
 	
 	@Test
 	public void getAllUsersADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("AU", "User", "login1", "password", "00000000A", "email1@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user1);
 		User user2 = new User("AU", "User", "login2", "password", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user2);
 		User user3 = new User("AU", "User", "login3", "password", "00000000C", "email3@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user3);
-		List<User> list = userService.getAllUsersADMIN(sesionIdAdmin, 0, 10, "userId", false);
+		List<User> list = userService.getAllUsers( 0, 10, "userId", false);
 		Assert.assertEquals(4,list.size());
 	}
 	
 	@Test
 	public void getAllUsersTAMADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("AU", "User", "login1", "password", "00000000A", "email1@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user1);
 		User user2 = new User("AU", "User", "login2", "password", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
@@ -332,35 +317,31 @@ public class UserSessionServiceTest {
 		User user3 = new User("AU", "User", "login3", "password", "00000000C", "email3@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user3);
 		
-		Assert.assertEquals(4,userService.getAllUsersTAMADMIN(sesionIdAdmin));
+		Assert.assertEquals(4,userService.getAllUsersTAM());
 	}
 	
 	@Test
 	public void findUsersByNameADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("AU", "User", "login1", "password", "00000000A", "email1@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user1);
 		User user2 = new User("AU", "User", "login2", "password", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user2);
 		User user3 = new User("AU", "User", "login3", "password", "00000000C", "email3@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user3);
-		List<User> list = userService.findUsersByNameADMIN(sesionIdAdmin, "User", 0, 10);
+		List<User> list = userService.findUsersByName( "User", 0, 10);
 		Assert.assertEquals(3,list.size());
 	}
 	
 	@Test
 	public void removeUserADMINTest () throws ServiceException, InstanceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 		userService.addUser(user);
 		
 		userDao.find(user.getUserId());
 		
-		userService.removeUserADMIN(sesionIdAdmin, user.getUserId());
+		userService.removeUser(user.getUserId());
 		
 		try {
 			userDao.find(user.getUserId());
@@ -371,104 +352,74 @@ public class UserSessionServiceTest {
 	@Test
 	public void changeUserDataADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = new User("", "User2", "login2", "password2", "00000000B", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user2);
-	    String sessionId = sessionService.login("login2", "password2").getSessionId();
 	    User userData = new User("", "User", "login", "password", "00000000C", "email2@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    try {
-			userService.changeUserDataADMIN(sesionIdAdmin, user1.getUserId(), userData);
+			userService.changeUserData(user1.getUserId(), userData);
 			Assert.fail();
 		} catch (ServiceException e) {}
 	    userData = new User("", "User", "login3", "password", "00000000C", "email3@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
-	    try {
-			userService.changeUserDataADMIN(sessionId, user1.getUserId(), userData);
-			Assert.fail();
-		} catch (ServiceException e) {}
-	    userService.changeUserDataADMIN(sesionIdAdmin, user1.getUserId(), userData);
+	    userService.changeUserData( user1.getUserId(), userData);
 	}
 	
 	@Test
 	public void changeUserPasswordADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    
-	    userService.changeUserPasswordADMIN(sesionIdAdmin, user1.getUserId(), "newPassword");
+	    userService.changeUserPasswordADMIN(user1.getUserId(), "newPassword");
 	}
 	
 	@Test
 	public void getUserPermissionsADMINest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = sessionService.login("login", "password").getSessionId();
-	    try {
-			userService.getUserPermissionsADMIN(sessionId + "asd",user2.getUserId());
-			Assert.fail();
-		} catch (ServiceException e) {}
-	    Assert.assertEquals("AU",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
+	    Assert.assertEquals("AU",userService.getUserPermissions(user2.getUserId()));
 	}
 	
 	@Test
 	public void addUserPermissionsADMINTest () throws ServiceException {
 		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
-		
 		User user1 = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = sessionService.login("login", "password").getSessionId();
-	    try {
-			userService.getUserPermissionsADMIN(sessionId + "asd",user2.getUserId());
-			Assert.fail();
-		} catch (ServiceException e) {}
-	    Assert.assertEquals("AU",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.addUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "");
-	    Assert.assertEquals("AU",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.addUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "A");
-	    Assert.assertEquals("AU",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.addUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "B");
-	    Assert.assertEquals("AUB",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.addUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "CD");
-	    Assert.assertEquals("AUBCD",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
+	    Assert.assertEquals("AU",userService.getUserPermissions(user2.getUserId()));
+	    userService.addUserPermissions(user2.getUserId(), "");
+	    Assert.assertEquals("AU",userService.getUserPermissions(user2.getUserId()));
+	    userService.addUserPermissions(user2.getUserId(), "A");
+	    Assert.assertEquals("AU",userService.getUserPermissions(user2.getUserId()));
+	    userService.addUserPermissions( user2.getUserId(), "B");
+	    Assert.assertEquals("AUB",userService.getUserPermissions(user2.getUserId()));
+	    userService.addUserPermissions(user2.getUserId(), "CD");
+	    Assert.assertEquals("AUBCD",userService.getUserPermissions(user2.getUserId()));
 	}
 	
 	@Test
-	public void removeUserPermissionsADMINTest () throws ServiceException {
-		
-		String sesionIdAdmin = sessionService.login(UserServiceImpl.ADMIN_LOGIN, UserServiceImpl.INITIAL_ADMIN_PASS).getSessionId();
+	public void removeUserPermissionsTest () throws ServiceException {
 		
 		User user1 = new User("AU", "User", "login", "password", "00000000A", "email@yopmail.com", "666666666", "XL", Calendar.getInstance(), "EN");
 	    userService.addUser(user1);
 	    User user2 = userDao.findUserByDni("00000000A");
 	    user2.setPremissions("AU");
 	    userDao.save(user2);
-	    String sessionId = sessionService.login("login", "password").getSessionId();
-	    try {
-			userService.removeUserPermissionsADMIN(sessionId + "asd",user2.getUserId(),"A");
-			Assert.fail();
-		} catch (ServiceException e) {}
-	    Assert.assertEquals("AU",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.removeUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "");
-	    Assert.assertEquals("AU",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.removeUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "U");
-	    Assert.assertEquals("A",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.removeUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "B");
-	    Assert.assertEquals("A",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));
-	    userService.removeUserPermissionsADMIN(sesionIdAdmin, user2.getUserId(), "A");
-	    Assert.assertEquals("",userService.getUserPermissionsADMIN(sesionIdAdmin,user2.getUserId()));  
+	    Assert.assertEquals("AU",userService.getUserPermissions(user2.getUserId()));
+	    userService.removeUserPermissions(user2.getUserId(), "");
+	    Assert.assertEquals("AU",userService.getUserPermissions(user2.getUserId()));
+	    userService.removeUserPermissions(user2.getUserId(), "U");
+	    Assert.assertEquals("A",userService.getUserPermissions(user2.getUserId()));
+	    userService.removeUserPermissions(user2.getUserId(), "B");
+	    Assert.assertEquals("A",userService.getUserPermissions(user2.getUserId()));
+	    userService.removeUserPermissions(user2.getUserId(), "A");
+	    Assert.assertEquals("",userService.getUserPermissions(user2.getUserId()));  
 	}
 }

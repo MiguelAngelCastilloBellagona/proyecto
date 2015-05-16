@@ -35,18 +35,20 @@ import es.ficonlan.web.api.model.util.exceptions.ServiceException;
 @Path("user")
 public class UserResource {
 
+	private static final String ADMINPERMISSIONKEY = "U";
+
 	private String[] s = { "userId", "name", "login", "dni", "email", "phoneNumber", "shirtSize", "dob" };
 	private ArrayList<String> l;
 
 	@Autowired
-    private UserService userService;
-	
+	private UserService userService;
+
 	@Autowired
-    private SessionService sessionService;
+	private SessionService sessionService;
 
 	public UserResource() {
-		this.userService  = ApplicationContextProvider.getApplicationContext().getBean(UserService.class);
-		this.sessionService  = ApplicationContextProvider.getApplicationContext().getBean(SessionService.class);
+		this.userService = ApplicationContextProvider.getApplicationContext().getBean(UserService.class);
+		this.sessionService = ApplicationContextProvider.getApplicationContext().getBean(SessionService.class);
 		l = new ArrayList<String>();
 		l.add(s[0]);
 		l.add(s[1]);
@@ -83,10 +85,10 @@ public class UserResource {
 	public Response removeUserUSER(@Context Request request, @HeaderParam("sessionId") String sessionId) {
 		try {
 			RequestControl.showContextData("removeUserUSER", request);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			userService.removeUserUSER(sessionId);
+			User target = sessionService.getUserUSER(sessionId);
+			userService.removeUser(target.getUserId());
 			if (request != null)
-				System.out.println("login {" + login + "}");
+				System.out.println("login {" + target.getLogin() + "}");
 			return Response.status(204).build();
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
@@ -99,10 +101,10 @@ public class UserResource {
 	public Response changeDataUSER(@Context Request request, @HeaderParam("sessionId") String sessionId, User user) {
 		try {
 			RequestControl.showContextData("changeDataUSER", request);
-			userService.changeUserDataUSER(sessionId, user);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
+			User target = sessionService.getUserUSER(sessionId);
+			userService.changeUserData(target.getUserId(), user);
 			if (request != null)
-				System.out.println("login {" + login + "}");
+				System.out.println("login {" + target.getLogin() + "}");
 			return Response.status(204).build();
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
@@ -116,10 +118,11 @@ public class UserResource {
 	public Response changePasswordUSER(@Context Request request, @HeaderParam("sessionId") String sessionId, ChangePasswordData data) {
 		try {
 			RequestControl.showContextData("changePasswordUSER", request);
-			userService.changeUserPasswordUSER(sessionId, data.getOldPassword(), data.getNewPassword());
-			String login = sessionService.getUserUSER(sessionId).getLogin();
+			User target = sessionService.getUserUSER(sessionId);
+			userService.changeUserPasswordUSER(target.getUserId(), data.getOldPassword(), data.getNewPassword());
 			if (request != null)
-				System.out.println("login {" + login + "}");
+				System.out.println("login {" + target.getLogin() + "}");
+			sessionService.closeAllUserOtherSessions(sessionId);
 			return Response.status(204).build();
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
@@ -147,9 +150,8 @@ public class UserResource {
 	@Path("/admin/allUser/query")
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getAllUsersADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId,
-			@PathParam("eventId") int eventId, @DefaultValue("1") @QueryParam("page") int page,
-			@DefaultValue("0") @QueryParam("pageTam") int pageTam, @DefaultValue("login") @QueryParam("orderBy") String orderBy,
+	public Response getAllUsersADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("eventId") int eventId,
+			@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("0") @QueryParam("pageTam") int pageTam, @DefaultValue("login") @QueryParam("orderBy") String orderBy,
 			@DefaultValue("1") @QueryParam("desc") int desc) {
 		RequestControl.showContextData("closeAllUserSessionsADMIN", request);
 		int startIndex = page * pageTam - pageTam;
@@ -160,11 +162,15 @@ public class UserResource {
 		try {
 			if (l.indexOf(orderBy) < 0)
 				throw new ServiceException(ServiceException.INCORRECT_FIELD, "orderBy");
-			List<User> l = userService.getAllUsersADMIN(sessionId, startIndex, cont, orderBy, b);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			if (request != null)
-				System.out.println("login {" + login + "}");
-			return Response.status(200).entity(l).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				List<User> l = userService.getAllUsers(startIndex, cont, orderBy, b);
+				if (request != null)
+					System.out.println("login {" + commander.getLogin() + "}");
+				return Response.status(200).entity(l).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -177,11 +183,15 @@ public class UserResource {
 	public Response getAllUsersTAMADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			long l = userService.getAllUsersTAMADMIN(sessionId);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			if (request != null)
-				System.out.println("login {" + login + "}");
-			return Response.status(200).entity(l).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				long l = userService.getAllUsersTAM();
+				if (request != null)
+					System.out.println("login {" + commander.getLogin() + "}");
+				return Response.status(200).entity(l).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -194,12 +204,16 @@ public class UserResource {
 	public Response removeUserADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			userService.removeUserADMIN(sessionId, userId);
-			if (request != null)
-				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
-			return Response.status(203).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			User target = userService.getUser(userId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				userService.removeUser(userId);
+				if (request != null)
+					System.out.println("login {" + commander.getLogin() + "}\t" + "target {" + target.getLogin() + "}");
+				return Response.status(203).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -209,16 +223,19 @@ public class UserResource {
 	@Path("/admin/{userId}")
 	@PUT
 	@Consumes({ MediaType.APPLICATION_JSON })
-	public Response changeDataADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId,
-			User user) {
+	public Response changeDataADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, User user) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			userService.changeUserDataADMIN(sessionId, userId, user);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			if (request != null)
-				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
-			return Response.status(203).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			User target = userService.getUser(userId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				userService.changeUserData(userId, user);
+				if (request != null)
+					System.out.println("login {" + commander.getLogin() + "}\t" + "target {" + target.getLogin() + "}");
+				return Response.status(203).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -228,16 +245,19 @@ public class UserResource {
 	@Path("/admin/changePassword/{userId}")
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON })
-	public Response changePasswordADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId,
-			@PathParam("userId") int userId, ChangePasswordData data) {
+	public Response changePasswordADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId, ChangePasswordData data) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			userService.changeUserPasswordADMIN(sessionId, userId, data.getNewPassword());
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			if (request != null)
-				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
-			return Response.status(203).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			User target = userService.getUser(userId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				userService.changeUserPasswordADMIN(userId, data.getNewPassword());
+				if (request != null)
+					System.out.println("login {" + commander.getLogin() + "}\t" + "target {" + target.getLogin() + "}");
+				return Response.status(203).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -247,16 +267,19 @@ public class UserResource {
 	@Path("/admin/{userId}/permissions")
 	@GET
 	@Produces("text/plain")
-	public Response getUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId,
-			@PathParam("userId") int userId) {
+	public Response getUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
+			User commander = sessionService.getUserUSER(sessionId);
+			User target = userService.getUser(userId);
 			if (request != null)
-				System.out.println("login {" + login + "}\t" + "target {" + target + "}");
-			String s = userService.getUserPermissionsADMIN(sessionId, userId);
-			return Response.status(200).entity(s).build();
+				System.out.println("login {" + commander.getLogin() + "}\t" + "target {" + target.getLogin() + "}");
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				String s = userService.getUserPermissions(userId);
+				return Response.status(200).entity(s).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -266,16 +289,20 @@ public class UserResource {
 	@Path("/admin/{userId}/permissions/{permission}")
 	@POST
 	@Produces("text/plain")
-	public Response addUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId,
-			@PathParam("userId") int userId, @PathParam("permission") String permission) {
+	public Response addUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId,
+			@PathParam("permission") String permission) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			String s = userService.addUserPermissionsADMIN(sessionId, userId, permission);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			if (request != null)
-				System.out.println("login {" + login + "}\t" + "target {" + target + "}\t" + "add {" + permission + "}");
-			return Response.status(200).entity(s).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			User target = userService.getUser(userId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				String s = userService.addUserPermissions(userId, permission);
+				if (request != null)
+					System.out.println("login {" + commander.getLogin() + "}\t" + "target {" + target.getLogin() + "}\t" + "add {" + permission + "}");
+				return Response.status(200).entity(s).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
@@ -285,16 +312,20 @@ public class UserResource {
 	@Path("/admin/{userId}/permissions/{permission}")
 	@DELETE
 	@Produces("text/plain")
-	public Response removeUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId,
-			@PathParam("userId") int userId, @PathParam("permission") String permission) {
+	public Response removeUserPermissionsADMIN(@Context Request request, @HeaderParam("sessionId") String sessionId, @PathParam("userId") int userId,
+			@PathParam("permission") String permission) {
 		try {
 			RequestControl.showContextData("closeAllUserSessionsADMIN", request);
-			String s = userService.removeUserPermissionsADMIN(sessionId, userId, permission);
-			String login = sessionService.getUserUSER(sessionId).getLogin();
-			String target = userService.getUserADMIN(sessionId, userId).getLogin();
-			if (request != null)
-				System.out.println("login {" + login + "}\t" + "target {" + target + "}\t" + "delete {" + permission + "}");
-			return Response.status(200).entity(s).build();
+			User commander = sessionService.getUserUSER(sessionId);
+			User target = userService.getUser(userId);
+			if (commander.getPremissions().contains(ADMINPERMISSIONKEY)) {
+				String s = userService.removeUserPermissions(userId, permission);
+				if (request != null)
+					System.out.println("login {" + commander.getLogin()  + "}\t" + "target {" + target.getLogin() + "}\t" + "delete {" + permission + "}");
+				return Response.status(200).entity(s).build();
+			} else {
+				throw new ServiceException(ServiceException.PERMISSION_DENIED);
+			}
 		} catch (ServiceException e) {
 			System.out.println(e.toString());
 			return Response.status(e.getHttpErrorCode()).entity(e.toString()).build();
