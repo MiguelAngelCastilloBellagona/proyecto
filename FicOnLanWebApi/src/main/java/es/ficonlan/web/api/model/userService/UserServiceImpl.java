@@ -81,7 +81,8 @@ public class UserServiceImpl implements UserService {
 			user.setSecondPassword(PasswordManager.hashPassword(pass));
 			Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			now.add(Calendar.MINUTE, minutos);
-			user.setSecondPasswordExpDate(Calendar.getInstance());
+			user.setSecondPasswordExpDate(now);
+			userDao.save(user);
 
 			Hashtable<String, String> tabla = new Hashtable<String, String>();
 			tabla.put("#loginusuario", user.getLogin());
