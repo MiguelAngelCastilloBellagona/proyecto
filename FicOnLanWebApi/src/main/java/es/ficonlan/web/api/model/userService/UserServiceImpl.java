@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
 	// ANONYMOUS
 
 	@Override
-	@Transactional
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public boolean passwordRecover(String email) throws ServiceException {
 
 		int minutos = 30;
@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public User addUser(User user) throws ServiceException {
 		User u = userDao.findUserBylogin(user.getLogin());
 		if (u != null)
@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
 	// USER
 
 	@Override
-	@Transactional
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public void removeUser(int userId) throws ServiceException {
 		try {
 			userDao.remove(userId);
@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public void changeUserData(int userId, User userData) throws ServiceException {
 		try {
 			User user = userDao.find(userId);
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation=Isolation.READ_COMMITTED)
 	public void changeUserPasswordUSER(int userId, String oldPassword, String newPassword) throws ServiceException {
 		try {
 			User user = userDao.find(userId);
@@ -192,7 +192,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
 	public String getUserPermissions(int userId) throws ServiceException {
 		try {
 			return userDao.find(userId).getPremissions();
@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	public void changeUserPasswordADMIN(int userId, String newPassword) throws ServiceException {
 		try {
 			User user = userDao.find(userId);
@@ -246,7 +246,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	public String addUserPermissions(int userId, String permission) throws ServiceException {
 		try {
 			User user = userDao.find(userId);
@@ -262,7 +262,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	public String removeUserPermissions(int userId, String permission) throws ServiceException {
 		try {
 			User user = userDao.find(userId);

@@ -51,7 +51,7 @@ public class SessionServiceImpl implements SessionService {
 	// ANONYMOUS
 	
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	public SessionData login(String login, String password) throws ServiceException {
 		if(login==null) throw new ServiceException(ServiceException.MISSING_FIELD,"Login");
 		if(password ==null) throw new ServiceException(ServiceException.MISSING_FIELD,"Password");
@@ -106,7 +106,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	public void closeAllUserSessions(String sessionId) throws ServiceException {
 		try {
 			List<Session> list = sessionDao.findSessionByUserId(sessionDao.find(sessionId).getUser().getUserId());
@@ -119,7 +119,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	public void closeAllUserOtherSessions(String sessionId) throws ServiceException {
 		try {
 			sessionAcceded(sessionId);
@@ -133,7 +133,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	public void closeUserSession(String sessionId) throws ServiceException {
 		try {
 			sessionDao.remove(sessionId);
@@ -151,7 +151,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	public void closeAllUserSessionsADMIN(int userId) throws ServiceException {
 		
 		List<Session> list = sessionDao.findSessionByUserId(userId);
@@ -165,7 +165,7 @@ public class SessionServiceImpl implements SessionService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	public void closeOldSessions() {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.MINUTE, SESSION_TIMEOUT * -1);
